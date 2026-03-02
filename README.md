@@ -2,13 +2,13 @@
 
 This is a simple Keycloak authenticator that enables users to log in using ID tokens.
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/sventorben/keycloak-restrict-client-auth?sort=semver)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mkunz-it/keycloak-id-token-auth?sort=semver)
 ![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.5.4-blue)
-![GitHub Release Date](https://img.shields.io/github/release-date-pre/sventorben/keycloak-restrict-client-auth)
-![Github Last Commit](https://img.shields.io/github/last-commit/sventorben/keycloak-restrict-client-auth)
+![GitHub Release Date](https://img.shields.io/github/release-date-pre/mkunz-it/keycloak-id-token-auth)
+![Github Last Commit](https://img.shields.io/github/last-commit/mkunz-it/keycloak-id-token-auth)
 
-![CI build](https://github.com/sventorben/keycloak-restrict-client-auth/actions/workflows/buildAndTest.yml/badge.svg)
-![open issues](https://img.shields.io/github/issues/sventorben/keycloak-restrict-client-auth)
+![CI build](https://github.com/mkunz-it/keycloak-id-token-auth/actions/workflows/buildAndTest.yml/badge.svg)
+![open issues](https://img.shields.io/github/issues/mkunz-it/keycloak-id-token-auth)
 [![CodeScene Code Health](https://codescene.io/projects/25589/status-badges/code-health)](https://codescene.io/projects/25589)
 
 ## What is it good for?
