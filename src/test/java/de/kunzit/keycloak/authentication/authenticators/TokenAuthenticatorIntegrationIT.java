@@ -5,11 +5,14 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.MountableFile;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,19 +33,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TokenAuthenticatorIntegrationIT {
 
-    private static final String REALM                  = "demo";
-    private static final String USERNAME               = "john.doe@example.com";
-    private static final String PASSWORD               = "changeIt";
-    private static final String MOBILE_APP_CLIENT      = "mobile-app";
+    private static final String REALM             = "demo";
+    private static final String USERNAME          = "john.doe@example.com";
+    private static final String PASSWORD          = "changeIt";
+    private static final String MOBILE_APP_CLIENT = "mobile-app";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenAuthenticatorIntegrationIT.class);
 
     @Container
-    static final KeycloakContainer KEYCLOAK = new KeycloakContainer("quay.io/keycloak/keycloak:26.5.4")
-        .withRealmImportFile("demo-realm-it.json")
-        .withProviderClassesFrom("target/classes")
-        .withAdminUsername("admin")
-        .withAdminPassword("admin")
-        .withCopyFileToContainer(MountableFile.forHostPath("target/token-authenticator.jar"),
-                                 "/opt/keycloak/providers/token-authenticator.jar");
+    static final KeycloakContainer KEYCLOAK = FullImageName.createContainer()
+                                                           .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
+                                                           .withRealmImportFile("demo-realm-it.json")
+                                                           .withAdminUsername("admin")
+                                                           .withAdminPassword("admin")
+                                                           .withStartupTimeout(Duration.ofSeconds(90));
+
+    @BeforeAll
+    static void setUp()
+    {
+        LOGGER.info("Running test with Keycloak image: " + FullImageName.get());
+    }
 
     @Test
     void shouldLoginToAccountConsoleWhenIdTokenContainsAccountConsoleAudience()
