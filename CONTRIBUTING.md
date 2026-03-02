@@ -4,7 +4,7 @@ I kindly ask anyone who wants to contribute to this project to follow some basic
 
 1. Open a discussion around the change before contributing any code
 
-   https://github.com/sventorben/keycloak-restrict-client-auth/discussions/categories/ideas)
+   https://github.com/mkunz-it/keycloak-id-token-auth/discussions/categories/ideas)
 2. Create a GitHub Issue with a good description associated with the PR
 4. One feature/change per PR
 5. One commit per PR
