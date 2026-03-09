@@ -1,6 +1,7 @@
 package de.kunzit.keycloak.authentication.authenticators.helper;
 
 import de.kunzit.keycloak.authentication.authenticators.TokenAuthenticatorFactory;
+import org.keycloak.TokenVerifier;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.FlowStatus;
 import org.keycloak.authentication.authenticators.broker.util.ExistingUserInfo;
@@ -9,14 +10,15 @@ import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.models.*;
 import org.keycloak.protocol.oidc.endpoints.AuthorizationEndpoint;
 import org.keycloak.representations.IDToken;
-import org.keycloak.representations.JsonWebToken;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.BruteForceProtector;
+import org.keycloak.util.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContextHelper {
 
@@ -54,9 +56,10 @@ public class ContextHelper {
         return context.getAuthenticatorConfig().getConfig().get(TokenAuthenticatorFactory.FORM_PARAM_NAME);
     }
 
-    private String getUserClaim()
+    private boolean isOfflineSessionsAllowed()
     {
-        return context.getAuthenticatorConfig().getConfig().get(TokenAuthenticatorFactory.PROPERTY_USER_CLAIM);
+        return Boolean.parseBoolean(
+            context.getAuthenticatorConfig().getConfig().getOrDefault(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "false"));
     }
 
     public String getExpectedIssuer()
@@ -67,6 +70,26 @@ public class ContextHelper {
         return KeycloakUriBuilder.fromUri(authServerUrl)
                                  .path("/realms/{realm}")
                                  .build(realm.getName()).toString();
+    }
+
+    public List<TokenVerifier.Predicate<? super IDToken>> getTokenVerifierChecks()
+    {
+        List<TokenVerifier.Predicate<? super IDToken>> checks = new ArrayList<>();
+        checks.add(TokenVerifier.IS_ACTIVE);
+        checks.add(new TokenVerifier.TokenTypeCheck(List.of(TokenUtil.TOKEN_TYPE_ID)));
+
+        String expectedAudience = getExpectedAudience();
+        if (expectedAudience != null && !expectedAudience.isBlank()) {
+            checks.add(new TokenVerifier.AudienceCheck(expectedAudience));
+        }
+
+        String issuedFor = getIssuedFor();
+        if (issuedFor != null && !issuedFor.isBlank()) {
+            checks.add(new TokenVerifier.IssuedForCheck(issuedFor));
+        }
+
+        checks.add(new TokenVerifier.RealmUrlCheck(getExpectedIssuer()));
+        return checks;
     }
 
     public void addUserToContext(UserModel user)
@@ -82,40 +105,22 @@ public class ContextHelper {
         return FlowStatus.SUCCESS.equals(context.getStatus());
     }
 
-    public UserModel getUserFromToken(IDToken token)
+    public UserModel getUserBySessionID(IDToken token)
         throws VerificationException
     {
-        UserModel user;
-        String userClaim = getUserClaim();
-        if (IDToken.PREFERRED_USERNAME.equals(userClaim)) {
-            LOGGER.debug(Constants.FETCH_USER_BY, userClaim);
-            user = context.getSession().users().getUserByUsername(context.getRealm(), valueOrException(token, IDToken::getPreferredUsername,
-                                                                                                       IDToken.PREFERRED_USERNAME));
-        }
-        else if (IDToken.EMAIL.equals(userClaim)) {
-            LOGGER.debug(Constants.FETCH_USER_BY, userClaim);
-            user = context.getSession().users().getUserByEmail(context.getRealm(), valueOrException(token, IDToken::getEmail,
-                                                                                                    IDToken.EMAIL));
-        }
-        else if (JsonWebToken.SUBJECT.equals(userClaim)) {
-            LOGGER.debug(Constants.FETCH_USER_BY, userClaim);
-            user = context.getSession().users()
-                          .getUserById(context.getRealm(), valueOrException(token, IDToken::getSubject, JsonWebToken.SUBJECT));
+        UserSessionProvider sessions = context.getSession().sessions();
+        RealmModel realm = context.getRealm();
+        String sessionId = token.getSessionId();
+        if (sessionId != null) {
+            UserSessionModel userSession = sessions.getUserSession(realm, sessionId);
+            if (!AuthenticationManager.isSessionValid(realm, userSession) && isOfflineSessionsAllowed()) {
+                userSession = sessions.getOfflineUserSession(realm, sessionId);
+            }
+            return AuthenticationManager.isSessionValid(realm, userSession) ? userSession.getUser() : null;
         }
         else {
-            throw new VerificationException("Unsupported user claim " + userClaim);
+            throw new VerificationException("Session ID not found in ID Token");
         }
-        return user;
-    }
-
-    private <T, R> R valueOrException(T obj, Function<T, R> fn, String claim)
-        throws VerificationException
-    {
-        R value = fn.apply(obj);
-        if (value == null || (value instanceof String s && s.isBlank())) {
-            throw new VerificationException(String.format(Constants.MISSING_CLAIM, claim));
-        }
-        return value;
     }
 
     public boolean isUserLocked(UserModel user)
@@ -135,26 +140,6 @@ public class ContextHelper {
             }
         }
         return false;
-    }
-
-    public boolean hasActiveClientSession(UserModel user, String issuedFor)
-    {
-        RealmModel realm = context.getRealm();
-        KeycloakSession session = context.getSession();
-        ClientModel client = realm.getClientByClientId(issuedFor);
-        if (client == null) {
-            return false;
-        }
-        return session.sessions().getUserSessionsStream(realm, user).anyMatch(us -> {
-            if (us.getState() != UserSessionModel.State.LOGGED_IN)
-                return false;
-            if (!AuthenticationManager.isSessionValid(realm, us))
-                return false;
-
-            // online client session exists?
-            AuthenticatedClientSessionModel cs = session.sessions().getClientSession(us, client, false);
-            return AuthenticationManager.isClientSessionValid(realm, client, us, cs);
-        });
     }
 
 }

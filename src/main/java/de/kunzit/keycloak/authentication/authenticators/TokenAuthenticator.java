@@ -12,11 +12,8 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.representations.IDToken;
-import org.keycloak.util.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class TokenAuthenticator
     implements Authenticator
@@ -32,8 +29,8 @@ public class TokenAuthenticator
         if (rawIdToken != null && !rawIdToken.isEmpty()) {
             try {
                 IDToken token = validateToken(context, rawIdToken, helper);
-                UserModel user = helper.getUserFromToken(token);
-                if (isValidUser(helper, user, token.getIssuedFor())) {
+                UserModel user = helper.getUserBySessionID(token);
+                if (isValidUser(helper, user, token)) {
                     helper.addUserToContext(user);
                     context.success();
                 }
@@ -74,15 +71,11 @@ public class TokenAuthenticator
 
         SignatureVerifierContext sigVerifier = sigProvider.verifier(kid);
         verifier.verifierContext(sigVerifier);
-        verifier.withChecks(TokenVerifier.IS_ACTIVE,
-                            new TokenVerifier.TokenTypeCheck(List.of(TokenUtil.TOKEN_TYPE_ID)),
-                            new TokenVerifier.AudienceCheck(helper.getExpectedAudience()),
-                            new TokenVerifier.IssuedForCheck(helper.getIssuedFor()),
-                            new TokenVerifier.RealmUrlCheck(helper.getExpectedIssuer())).verify();
+        verifier.withChecks(helper.getTokenVerifierChecks().toArray(new TokenVerifier.Predicate[0])).verify();
         return verifier.getToken();
     }
 
-    private boolean isValidUser(ContextHelper helper, UserModel user, String issuedFor)
+    private boolean isValidUser(ContextHelper helper, UserModel user, IDToken token)
     {
         if (user == null) {
             return false;
@@ -99,11 +92,6 @@ public class TokenAuthenticator
             return false;
         }
 
-        // Check valid user session
-        if (!helper.hasActiveClientSession(user, issuedFor)) {
-            LOGGER.debug("User {} has no active client session for client_id {}", user.getUsername(), issuedFor);
-            return false;
-        }
         return true;
     }
 

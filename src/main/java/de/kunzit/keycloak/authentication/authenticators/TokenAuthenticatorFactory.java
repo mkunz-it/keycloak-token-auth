@@ -22,10 +22,10 @@ public class TokenAuthenticatorFactory
     public static final String FORM_PARAM_NAME         = "formParamName";
     public static final String FORM_PARAM_NAME_DEFAULT = "id_token";
 
-    public static final String PROPERTY_AUDIENCE                    = "expectedAudience";
-    public static final String PROPERTY_AZP                         = "expectedAzp";
-    public static final String PROPERTY_USER_CLAIM                  = "userClaim";
-    public static final String PROPERTY_NEEDS_ACTIVE_CLIENT_SESSION = "needsActiveClientSession";
+    public static final String PROPERTY_AUDIENCE                 = "expectedAudience";
+    public static final String PROPERTY_AZP                      = "expectedAzp";
+    public static final String PROPERTY_USER_CLAIM               = "userClaim";
+    public static final String PROPERTY_OFFLINE_SESSIONS_ALLOWED = "offlineSessionsAllowed";
 
     public static final String PROVIDER_ID = "token-authenticator";
 
@@ -77,11 +77,8 @@ public class TokenAuthenticatorFactory
                                        ProviderConfigProperty.CLIENT_LIST_TYPE, null, false, true),
             new ProviderConfigProperty(PROPERTY_AZP, "Issued For", "Expected 'azp' claim (issued for) for the ID Token",
                                        ProviderConfigProperty.CLIENT_LIST_TYPE, null, false, true),
-            new ProviderConfigProperty(PROPERTY_USER_CLAIM, "User Claim", "Claim to search for a Keycloak user",
-                                       ProviderConfigProperty.LIST_TYPE, IDToken.PREFERRED_USERNAME, IDToken.EMAIL, IDToken.PREFERRED_USERNAME,
-                                       JsonWebToken.SUBJECT),
-            new ProviderConfigProperty(PROPERTY_NEEDS_ACTIVE_CLIENT_SESSION, "Needs active session",
-                                       "Check the “Issued For” property to verify that there is a valid client session.",
+            new ProviderConfigProperty(PROPERTY_OFFLINE_SESSIONS_ALLOWED, "Offline sessions allowed",
+                                       "Additionally searches for an offline session based on the Session-ID (sid).",
                                        ProviderConfigProperty.BOOLEAN_TYPE, "true")
         );
     }

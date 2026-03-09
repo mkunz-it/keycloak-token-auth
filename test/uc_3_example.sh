@@ -5,18 +5,23 @@ readonly authUrl="http://localhost:8080"
 readonly realm="demo"
 
 #client which simulates the mobile application
-readonly clientIdApp=mobile-app
+readonly srcClientId=mobile-app
 readonly username=john.doe@example.com
 readonly password=changeIt
 
+#proxy client
+readonly proxyClientId=proxy-client
+readonly proxyClientSecret=jmFKJOr8VhExFravCPR0uO1HrG2TJoiP
+
 #other client to redirect after session is created in keyclaok
-#this uri must be set as valid redirect uri on the mobile-app client
-readonly redirectUri=$authUrl/realms/$realm/account/
+#this uri must be set as valid redirect uri on the proxy-client client
+readonly redirectUri=http://localhost:8081/example/
 
 #simulates mobile app login
+#scope=audience adds the "account-console" as audience to the ID-Token
 resp="$(curl -X POST $authUrl/realms/$realm/protocol/openid-connect/token \
     -H "Content-Type: application/x-www-form-urlencoded" \
-    --data-urlencode "client_id=$clientIdApp" \
+    --data-urlencode "client_id=$srcClientId" \
     --data-urlencode "grant_type=password" \
     --data-urlencode "username=$username" \
     --data-urlencode "password=$password" \
@@ -51,9 +56,10 @@ code_challenge="$(
 #code_challenge is not used by the mobile-app because it will never see the code, but it prevents "authorization code interception"
 resp2="$(curl -X POST $authUrl/realms/$realm/protocol/openid-connect/ext/par/request \
     -H "Content-Type: application/x-www-form-urlencoded" \
-    --data-urlencode "client_id=$clientIdApp" \
+    --data-urlencode "client_id=$proxyClientId" \
+    --data-urlencode "client_secret=$proxyClientSecret" \
     --data-urlencode "response_type=code" \
-    --data-urlencode "scope=openid profile email" \
+    --data-urlencode "scope=openid" \
     --data-urlencode "redirect_uri=$redirectUri" \
     --data-urlencode "code_challenge_method=S256" \
     --data-urlencode "code_challenge=$code_challenge" \
@@ -69,4 +75,4 @@ echo "request_uri:"
 echo $request_uri
 echo
 echo "please put the following URL into your browser"
-echo "$authUrl/realms/$realm/protocol/openid-connect/auth?client_id=$clientIdApp&request_uri=$request_uri"
+echo "$authUrl/realms/$realm/protocol/openid-connect/auth?client_id=$proxyClientId&request_uri=$request_uri"

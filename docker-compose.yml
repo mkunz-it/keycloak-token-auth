@@ -14,5 +14,28 @@ services:
     command: [ "start-dev", "--import-realm" ]
     restart: unless-stopped
     volumes:
-      - ./target/token-authenticator.jar:/opt/keycloak/providers/token-authenticator.jar:ro
+      - ./target/keycloak-id-token-auth.jar:/opt/keycloak/providers/keycloak-id-token-auth.jar:ro
       - ./src/test/resources/demo-realm.json:/opt/keycloak/data/import/demo-realm.json
+
+  apache:
+    image: mkgoesdocker/oidc-tester:1.1.0
+    container_name: conf-oidc-client
+    ports:
+      - "8081:80"
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/html
+      OIDC_PROVIDER_METADATA_URL: "http://keycloak:8080/realms/demo/.well-known/openid-configuration"
+      # Workaround due to compatibility with MacOS and localhost - userInfo is not working
+      OIDC_PROVIDER_ISSUER: "http://localhost:8080/realms/demo"
+      OIDC_PROVIDER_AUTH_URL: "http://localhost:8080/realms/demo/protocol/openid-connect/auth"
+      OIDC_CLIENT_ID: "confidential-client"
+      OIDC_CLIENT_SECRET: "TMVWi2iTlTe5bgCRZhY2nyBrtFf7Jc8k"
+      OIDC_SCOPE: "openid email profile"
+      OIDC_CRYPTO_PASSPHRASE: "3pKf9Wm2qX7zL4nR8tC1vJ6hS5yB0dGa"
+      OIDC_AUTH_REQUEST_METHOD: PAR
+    depends_on:
+      - keycloak
+    restart: unless-stopped
+
+
+

@@ -15,7 +15,8 @@ class TokenAuthenticatorFactoryTest {
     private final TokenAuthenticatorFactory factory = new TokenAuthenticatorFactory();
 
     @Test
-    void shouldExposeMetadata() {
+    void shouldExposeMetadata()
+    {
         assertThat(factory.getDisplayType()).isEqualTo("ID Token Authentication");
         assertThat(factory.getReferenceCategory()).isEqualTo("token");
         assertThat(factory.getHelpText()).isEqualTo("Identify users based on existing ID tokens");
@@ -23,7 +24,8 @@ class TokenAuthenticatorFactoryTest {
     }
 
     @Test
-    void shouldExposeExecutionFlagsAndRequirements() {
+    void shouldExposeExecutionFlagsAndRequirements()
+    {
         assertThat(factory.isConfigurable()).isTrue();
         assertThat(factory.isUserSetupAllowed()).isTrue();
 
@@ -36,22 +38,23 @@ class TokenAuthenticatorFactoryTest {
     }
 
     @Test
-    void shouldExposeConfigProperties() {
+    void shouldExposeConfigProperties()
+    {
         List<ProviderConfigProperty> props = factory.getConfigProperties();
 
-        assertThat(props).hasSize(5);
+        assertThat(props).hasSize(4);
         assertThat(props).extracting(ProviderConfigProperty::getName)
-            .containsExactly(
-                TokenAuthenticatorFactory.FORM_PARAM_NAME,
-                TokenAuthenticatorFactory.PROPERTY_AUDIENCE,
-                TokenAuthenticatorFactory.PROPERTY_AZP,
-                TokenAuthenticatorFactory.PROPERTY_USER_CLAIM,
-                TokenAuthenticatorFactory.PROPERTY_NEEDS_ACTIVE_CLIENT_SESSION
-            );
+                         .containsExactly(
+                             TokenAuthenticatorFactory.FORM_PARAM_NAME,
+                             TokenAuthenticatorFactory.PROPERTY_AUDIENCE,
+                             TokenAuthenticatorFactory.PROPERTY_AZP,
+                             TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED
+                         );
     }
 
     @Test
-    void shouldReturnSingletonAuthenticator() {
+    void shouldReturnSingletonAuthenticator()
+    {
         Authenticator first = factory.create(null);
         Authenticator second = factory.create(null);
 
@@ -59,7 +62,8 @@ class TokenAuthenticatorFactoryTest {
     }
 
     @Test
-    void shouldReturnOperationalInfoWithVersionKey() {
+    void shouldReturnOperationalInfoWithVersionKey()
+    {
         Map<String, String> operationalInfo = factory.getOperationalInfo();
 
         assertThat(operationalInfo).containsKey("Version");

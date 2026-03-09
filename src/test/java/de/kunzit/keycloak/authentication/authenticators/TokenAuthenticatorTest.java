@@ -3,6 +3,7 @@ package de.kunzit.keycloak.authentication.authenticators;
 import de.kunzit.keycloak.authentication.authenticators.helper.ContextHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.TokenVerifier;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.FlowStatus;
 import org.keycloak.common.VerificationException;
@@ -24,6 +25,8 @@ import java.lang.reflect.Method;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -88,16 +91,17 @@ class TokenAuthenticatorTest {
     void shouldValidateUserRulesViaPrivateMethod()
         throws Exception
     {
-        Method method = TokenAuthenticator.class.getDeclaredMethod("isValidUser", ContextHelper.class, UserModel.class, String.class);
+        Method method = TokenAuthenticator.class.getDeclaredMethod("isValidUser", ContextHelper.class, UserModel.class, IDToken.class);
         method.setAccessible(true);
 
         ContextHelper helper = mock(ContextHelper.class);
         UserModel user = mock(UserModel.class);
+        IDToken token = mock(IDToken.class);
+        when(token.getIssuedFor()).thenReturn("client-a");
         when(user.isEnabled()).thenReturn(true);
         when(helper.isUserLocked(user)).thenReturn(false);
-        when(helper.hasActiveClientSession(user, "client-a")).thenReturn(true);
 
-        boolean result = (boolean)method.invoke(authenticator, helper, user, "client-a");
+        boolean result = (boolean)method.invoke(authenticator, helper, user, token);
 
         assertThat(result).isTrue();
     }
@@ -270,6 +274,17 @@ class TokenAuthenticatorTest {
         when(helper.getExpectedIssuer()).thenReturn(expectedIssuer);
         when(helper.getExpectedAudience()).thenReturn(expectedAudience);
         when(helper.getIssuedFor()).thenReturn(issuedFor);
+        List<TokenVerifier.Predicate<? super IDToken>> checks = new ArrayList<>();
+        checks.add(TokenVerifier.IS_ACTIVE);
+        checks.add(new TokenVerifier.TokenTypeCheck(List.of(TokenUtil.TOKEN_TYPE_ID)));
+        if (expectedAudience != null && !expectedAudience.isBlank()) {
+            checks.add(new TokenVerifier.AudienceCheck(expectedAudience));
+        }
+        if (issuedFor != null && !issuedFor.isBlank()) {
+            checks.add(new TokenVerifier.IssuedForCheck(issuedFor));
+        }
+        checks.add(new TokenVerifier.RealmUrlCheck(expectedIssuer));
+        when(helper.getTokenVerifierChecks()).thenReturn(checks);
         return helper;
     }
 

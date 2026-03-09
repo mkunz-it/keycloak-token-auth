@@ -7,7 +7,7 @@
   <version>26.1.1-SNAPSHOT</version>
 
   <name>Keycloak: Authenticator - Login via ID-Token</name>
-  <description>A Keycloak authenticator to allow login via OpenID Connect - ID Token</description>
+  <description>A Keycloak authenticator to allow login via OpenID Connect - ID-Token</description>
 
   <packaging>jar</packaging>
 
@@ -51,10 +51,9 @@
     <maven.compiler.release>17</maven.compiler.release>
 
     <!-- For compilation -->
-    <version.keycloak>26.5.4</version.keycloak>
+    <keycloak.version>26.5.4</keycloak.version>
 
     <!-- For compatibility tests -->
-    <keycloak.version>${version.keycloak}</keycloak.version>
     <keycloak.dist>quarkus</keycloak.dist>
     <useJar>false</useJar>
 
@@ -157,7 +156,7 @@
       <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-parent</artifactId>
-        <version>${version.keycloak}</version>
+        <version>${keycloak.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -179,25 +178,25 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-core</artifactId>
-      <version>${version.keycloak}</version>
+      <version>${keycloak.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-server-spi</artifactId>
-      <version>${version.keycloak}</version>
+      <version>${keycloak.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-server-spi-private</artifactId>
-      <version>${version.keycloak}</version>
+      <version>${keycloak.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-services</artifactId>
-      <version>${version.keycloak}</version>
+      <version>${keycloak.version}</version>
       <exclusions>
         <!-- Has  to be excluded. If this is not here, Logging does not work for Testcontainers.
         Normally no package should provide an implementation for slf4j. But Keycloak does, starting from version 26. Might be a bug. -->

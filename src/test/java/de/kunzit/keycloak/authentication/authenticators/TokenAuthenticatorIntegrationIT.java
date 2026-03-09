@@ -33,10 +33,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TokenAuthenticatorIntegrationIT {
 
-    private static final String REALM             = "demo";
-    private static final String USERNAME          = "john.doe@example.com";
-    private static final String PASSWORD          = "changeIt";
-    private static final String MOBILE_APP_CLIENT = "mobile-app";
+    private static final String REALM                 = "demo";
+    private static final String USERNAME              = "john.doe@example.com";
+    private static final String PASSWORD              = "changeIt";
+    private static final String SOURCE_CLIENT         = "mobile-app";
+    private static final String TARGET_CLIENT_ACCOUNT = "account-console";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenAuthenticatorIntegrationIT.class);
 
@@ -59,7 +60,7 @@ class TokenAuthenticatorIntegrationIT {
         throws Exception
     {
         String idToken = obtainIdToken("openid email account");
-        String requestUri = pushedAuthorizationRequest(idToken);
+        String requestUri = pushedAuthorizationRequest(idToken, TARGET_CLIENT_ACCOUNT, accountConsoleUri().toString());
 
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
@@ -78,7 +79,7 @@ class TokenAuthenticatorIntegrationIT {
         throws Exception
     {
         String idToken = obtainIdToken("openid email");
-        String requestUri = pushedAuthorizationRequest(idToken);
+        String requestUri = pushedAuthorizationRequest(idToken, TARGET_CLIENT_ACCOUNT, accountConsoleUri().toString());
 
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
@@ -98,6 +99,25 @@ class TokenAuthenticatorIntegrationIT {
         }
     }
 
+    @Test
+    void shouldLoginToAccountConsoleWhenOfflineSessionIsAllowed()
+        throws Exception
+    {
+        String idToken = obtainIdToken("openid email account offline_access");
+        String requestUri = pushedAuthorizationRequest(idToken, TARGET_CLIENT_ACCOUNT, accountConsoleUri().toString());
+
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+            Page page = browser.newContext().newPage();
+            page.navigate(browserAuthorizationUri(requestUri));
+            assertThat(page.url()).contains("/realms/" + REALM + "/account/");
+            page.waitForSelector("input#username");
+            String usernameValue = page.locator("input#username").inputValue();
+            assertThat(usernameValue).isEqualTo(USERNAME);
+            browser.close();
+        }
+    }
+
     private static URI accountConsoleUri()
     {
         return URI.create(baseUrl() + "/realms/" + REALM + "/account/");
@@ -106,7 +126,7 @@ class TokenAuthenticatorIntegrationIT {
     private static String browserAuthorizationUri(String requestUri)
     {
         String authPath = "/realms/" + REALM + "/protocol/openid-connect/auth";
-        return baseUrl() + authPath + "?client_id=" + encode(MOBILE_APP_CLIENT) + "&request_uri=" + encode(requestUri);
+        return baseUrl() + authPath + "?client_id=" + encode(TARGET_CLIENT_ACCOUNT) + "&request_uri=" + encode(requestUri);
     }
 
     private static String obtainIdToken(String scope)
@@ -114,7 +134,7 @@ class TokenAuthenticatorIntegrationIT {
     {
         String tokenPath = "/realms/" + REALM + "/protocol/openid-connect/token";
         Map<String, String> form = new LinkedHashMap<>();
-        form.put("client_id", MOBILE_APP_CLIENT);
+        form.put("client_id", SOURCE_CLIENT);
         form.put("grant_type", "password");
         form.put("username", USERNAME);
         form.put("password", PASSWORD);
@@ -128,15 +148,15 @@ class TokenAuthenticatorIntegrationIT {
         return idToken;
     }
 
-    private static String pushedAuthorizationRequest(String idToken)
+    private static String pushedAuthorizationRequest(String idToken, String targetClient, String redirectUri)
         throws IOException, InterruptedException
     {
         String parPath = "/realms/" + REALM + "/protocol/openid-connect/ext/par/request";
         Map<String, String> form = new LinkedHashMap<>();
-        form.put("client_id", MOBILE_APP_CLIENT);
+        form.put("client_id", targetClient);
         form.put("response_type", "code");
         form.put("scope", "openid profile email");
-        form.put("redirect_uri", accountConsoleUri().toString());
+        form.put("redirect_uri", redirectUri);
         form.put("code_challenge_method", "S256");
         form.put("code_challenge", "P8SQZ23DZjuc5u6IogwrU7ufXit9dbLZMxfGWtbzeeI");
         form.put("id_token", idToken);

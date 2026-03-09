@@ -4,41 +4,46 @@ import de.kunzit.keycloak.authentication.authenticators.helper.ContextHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.TokenVerifier;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.FlowStatus;
 import org.keycloak.common.VerificationException;
 import org.keycloak.models.*;
 import org.keycloak.protocol.oidc.endpoints.AuthorizationEndpoint;
 import org.keycloak.representations.IDToken;
+import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.BruteForceProtector;
 import org.keycloak.sessions.AuthenticationSessionModel;
+import org.mockito.MockedStatic;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class ContextHelperTest {
 
-    private AuthenticationFlowContext flowContext;
-    private AuthenticatorConfigModel authenticatorConfigModel;
+    private AuthenticationFlowContext  flowContext;
+    private AuthenticatorConfigModel   authenticatorConfigModel;
     private AuthenticationSessionModel authenticationSession;
-    private KeycloakSession session;
-    private KeycloakContext keycloakContext;
-    private RealmModel realm;
-    private UserProvider userProvider;
+    private KeycloakSession            session;
+    private KeycloakContext            keycloakContext;
+    private RealmModel                 realm;
+    private UserProvider               userProvider;
+    private UserSessionProvider        userSessionProvider;
 
     private Map<String, String> config;
 
     @BeforeEach
-    void setUp() {
+    void setUp()
+    {
         flowContext = mock(AuthenticationFlowContext.class);
         authenticatorConfigModel = mock(AuthenticatorConfigModel.class);
         authenticationSession = mock(AuthenticationSessionModel.class);
@@ -46,12 +51,12 @@ class ContextHelperTest {
         keycloakContext = mock(KeycloakContext.class);
         realm = mock(RealmModel.class);
         userProvider = mock(UserProvider.class);
+        userSessionProvider = mock(UserSessionProvider.class);
 
         config = new HashMap<>();
         config.put(TokenAuthenticatorFactory.FORM_PARAM_NAME, "id_token");
         config.put(TokenAuthenticatorFactory.PROPERTY_AUDIENCE, "my-audience");
         config.put(TokenAuthenticatorFactory.PROPERTY_AZP, "my-client");
-        config.put(TokenAuthenticatorFactory.PROPERTY_USER_CLAIM, IDToken.PREFERRED_USERNAME);
 
         when(authenticatorConfigModel.getConfig()).thenReturn(config);
         when(flowContext.getAuthenticatorConfig()).thenReturn(authenticatorConfigModel);
@@ -61,10 +66,12 @@ class ContextHelperTest {
         when(session.getContext()).thenReturn(keycloakContext);
         when(keycloakContext.getRealm()).thenReturn(realm);
         when(session.users()).thenReturn(userProvider);
+        when(session.sessions()).thenReturn(userSessionProvider);
     }
 
     @Test
-    void shouldReturnConfiguredValuesAndRawToken() {
+    void shouldReturnConfiguredValuesAndRawToken()
+    {
         when(authenticationSession.getClientNote(AuthorizationEndpoint.LOGIN_SESSION_NOTE_ADDITIONAL_REQ_PARAMS_PREFIX + "id_token"))
             .thenReturn("raw-token");
 
@@ -77,7 +84,8 @@ class ContextHelperTest {
     }
 
     @Test
-    void shouldResolveExpectedIssuerFromRealmAndAuthServerUrl() {
+    void shouldResolveExpectedIssuerFromRealmAndAuthServerUrl()
+    {
         when(keycloakContext.getAuthServerUrl()).thenReturn(URI.create("https://sso.example.test/auth"));
         when(realm.getName()).thenReturn("my-realm");
 
@@ -87,7 +95,40 @@ class ContextHelperTest {
     }
 
     @Test
-    void shouldAddUserToContextAndClearClientNote() {
+    void shouldBuildTokenVerifierChecksWithOptionalChecksWhenConfigured()
+    {
+        when(keycloakContext.getAuthServerUrl()).thenReturn(URI.create("https://sso.example.test/auth"));
+        when(realm.getName()).thenReturn("my-realm");
+
+        List<TokenVerifier.Predicate<? super IDToken>> checks = ContextHelper.getInstance(flowContext).getTokenVerifierChecks();
+
+        assertThat(checks).hasSize(5);
+        assertThat(checks.get(0)).isSameAs(TokenVerifier.IS_ACTIVE);
+        assertThat(checks.get(1)).isInstanceOf(TokenVerifier.TokenTypeCheck.class);
+        assertThat(checks.get(2)).isInstanceOf(TokenVerifier.AudienceCheck.class);
+        assertThat(checks.get(3)).isInstanceOf(TokenVerifier.IssuedForCheck.class);
+        assertThat(checks.get(4)).isInstanceOf(TokenVerifier.RealmUrlCheck.class);
+    }
+
+    @Test
+    void shouldSkipOptionalChecksWhenAudienceAndIssuedForAreMissing()
+    {
+        config.put(TokenAuthenticatorFactory.PROPERTY_AUDIENCE, " ");
+        config.put(TokenAuthenticatorFactory.PROPERTY_AZP, "");
+        when(keycloakContext.getAuthServerUrl()).thenReturn(URI.create("https://sso.example.test/auth"));
+        when(realm.getName()).thenReturn("my-realm");
+
+        List<TokenVerifier.Predicate<? super IDToken>> checks = ContextHelper.getInstance(flowContext).getTokenVerifierChecks();
+
+        assertThat(checks).hasSize(3);
+        assertThat(checks.get(0)).isSameAs(TokenVerifier.IS_ACTIVE);
+        assertThat(checks.get(1)).isInstanceOf(TokenVerifier.TokenTypeCheck.class);
+        assertThat(checks.get(2)).isInstanceOf(TokenVerifier.RealmUrlCheck.class);
+    }
+
+    @Test
+    void shouldAddUserToContextAndClearClientNote()
+    {
         UserModel user = mock(UserModel.class);
         when(user.getId()).thenReturn("user-id");
 
@@ -100,7 +141,8 @@ class ContextHelperTest {
     }
 
     @Test
-    void shouldReportSuccessBasedOnFlowStatus() {
+    void shouldReportSuccessBasedOnFlowStatus()
+    {
         when(flowContext.getStatus()).thenReturn(FlowStatus.SUCCESS);
         assertThat(ContextHelper.getInstance(flowContext).isSuccess()).isTrue();
 
@@ -109,64 +151,128 @@ class ContextHelperTest {
     }
 
     @Test
-    void shouldGetUserByUsernameClaim() throws VerificationException {
+    void shouldGetUserBySessionId()
+        throws VerificationException
+    {
+        String sessionId = "bcdd9603-cabf-4c90-b71e-8a7fcaf6a23f";
         IDToken token = new IDToken();
-        token.setPreferredUsername("alice");
+        token.setSessionId(sessionId);
         UserModel expected = mock(UserModel.class);
-        when(userProvider.getUserByUsername(realm, "alice")).thenReturn(expected);
+        UserSessionModel userSession = mock(UserSessionModel.class);
+        when(userSessionProvider.getUserSession(realm, sessionId)).thenReturn(userSession);
+        when(userSession.getUser()).thenReturn(expected);
+        try (MockedStatic<AuthenticationManager> authManager =
+            mockStatic(AuthenticationManager.class)) {
 
-        UserModel user = ContextHelper.getInstance(flowContext).getUserFromToken(token);
+            authManager
+                .when(() -> AuthenticationManager.isSessionValid(realm, userSession))
+                .thenReturn(true);
 
-        assertThat(user).isSameAs(expected);
+            UserModel user = ContextHelper.getInstance(flowContext).getUserBySessionID(token);
+            assertThat(user).isSameAs(expected);
+        }
     }
 
     @Test
-    void shouldGetUserByEmailClaim() throws VerificationException {
-        config.put(TokenAuthenticatorFactory.PROPERTY_USER_CLAIM, IDToken.EMAIL);
+    void shouldReturnNullIfSessionNotExists()
+        throws VerificationException
+    {
+        String sessionId = "bcdd9603-cabf-4c90-b71e-8a7fcaf6a23f";
         IDToken token = new IDToken();
-        token.setEmail("alice@example.test");
+        token.setSessionId(sessionId);
         UserModel expected = mock(UserModel.class);
-        when(userProvider.getUserByEmail(realm, "alice@example.test")).thenReturn(expected);
+        UserSessionModel userSession = mock(UserSessionModel.class);
+        when(userSessionProvider.getUserSession(realm, sessionId)).thenReturn(null);
+        when(userSessionProvider.getOfflineUserSession(realm, sessionId)).thenReturn(null);
+        when(userSession.getUser()).thenReturn(expected);
 
-        UserModel user = ContextHelper.getInstance(flowContext).getUserFromToken(token);
+        try (MockedStatic<AuthenticationManager> authManager =
+            mockStatic(AuthenticationManager.class)) {
 
-        assertThat(user).isSameAs(expected);
+            authManager
+                .when(() -> AuthenticationManager.isSessionValid(eq(realm), isNull()))
+                .thenReturn(false);
+
+            UserModel user = ContextHelper.getInstance(flowContext).getUserBySessionID(token);
+            assertThat(user).isNull();
+        }
     }
 
     @Test
-    void shouldGetUserBySubjectClaim() throws VerificationException {
-        config.put(TokenAuthenticatorFactory.PROPERTY_USER_CLAIM, IDToken.SUBJECT);
+    void shouldGetUserBySessionIdOffline()
+        throws VerificationException
+    {
+        String sessionId = "bcdd9603-cabf-4c90-b71e-8a7fcaf6a23f";
+        config.put(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "true");
         IDToken token = new IDToken();
-        token.setSubject("12345");
+        token.setSessionId(sessionId);
         UserModel expected = mock(UserModel.class);
-        when(userProvider.getUserById(realm, "12345")).thenReturn(expected);
+        UserSessionModel userSession = mock(UserSessionModel.class);
+        when(userSessionProvider.getUserSession(realm, sessionId)).thenReturn(null);
+        when(userSessionProvider.getOfflineUserSession(realm, sessionId)).thenReturn(userSession);
+        when(userSession.getUser()).thenReturn(expected);
+        try (MockedStatic<AuthenticationManager> authManager =
+            mockStatic(AuthenticationManager.class)) {
 
-        UserModel user = ContextHelper.getInstance(flowContext).getUserFromToken(token);
+            authManager
+                .when(() -> AuthenticationManager.isSessionValid(eq(realm), isNull()))
+                .thenReturn(false);
 
-        assertThat(user).isSameAs(expected);
+            authManager
+                .when(() -> AuthenticationManager.isSessionValid(eq(realm), eq(userSession)))
+                .thenReturn(true);
+
+            UserModel user = ContextHelper.getInstance(flowContext).getUserBySessionID(token);
+            assertThat(user).isSameAs(expected);
+        }
     }
 
     @Test
-    void shouldFailWhenClaimIsMissing() {
+    void shouldReturnNullIfOfflineSessionNotExists()
+        throws VerificationException
+    {
+        String sessionId = "bcdd9603-cabf-4c90-b71e-8a7fcaf6a23f";
+        config.put(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "true");
         IDToken token = new IDToken();
+        token.setSessionId(sessionId);
+        UserModel expected = mock(UserModel.class);
+        UserSessionModel userSession = mock(UserSessionModel.class);
+        when(userSessionProvider.getUserSession(realm, sessionId)).thenReturn(null);
+        when(userSessionProvider.getOfflineUserSession(realm, sessionId)).thenReturn(null);
+        when(userSession.getUser()).thenReturn(expected);
 
-        assertThatThrownBy(() -> ContextHelper.getInstance(flowContext).getUserFromToken(token))
-            .isInstanceOf(VerificationException.class)
-            .hasMessageContaining("preferred_username claim is missing in token");
+        try (MockedStatic<AuthenticationManager> authManager =
+            mockStatic(AuthenticationManager.class)) {
+
+            authManager
+                .when(() -> AuthenticationManager.isSessionValid(eq(realm), isNull()))
+                .thenReturn(false);
+
+            UserModel user = ContextHelper.getInstance(flowContext).getUserBySessionID(token);
+            assertThat(user).isNull();
+        }
     }
 
     @Test
-    void shouldFailOnUnsupportedUserClaim() {
-        config.put(TokenAuthenticatorFactory.PROPERTY_USER_CLAIM, "custom-claim");
+    void shouldReturnNullIfOfflineSessionExistsButNotAllowed()
+        throws VerificationException
+    {
+        String sessionId = "bcdd9603-cabf-4c90-b71e-8a7fcaf6a23f";
+        config.put(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "false");
         IDToken token = new IDToken();
-
-        assertThatThrownBy(() -> ContextHelper.getInstance(flowContext).getUserFromToken(token))
-            .isInstanceOf(VerificationException.class)
-            .hasMessageContaining("Unsupported user claim custom-claim");
+        token.setSessionId(sessionId);
+        UserModel expected = mock(UserModel.class);
+        UserSessionModel userSession = mock(UserSessionModel.class);
+        when(userSessionProvider.getUserSession(realm, sessionId)).thenReturn(null);
+        when(userSessionProvider.getOfflineUserSession(realm, sessionId)).thenReturn(userSession);
+        when(userSession.getUser()).thenReturn(expected);
+        UserModel user = ContextHelper.getInstance(flowContext).getUserBySessionID(token);
+        assertThat(user).isNull();
     }
 
     @Test
-    void shouldReportUserLockStatusFromBruteForceProtector() {
+    void shouldReportUserLockStatusFromBruteForceProtector()
+    {
         BruteForceProtector protector = mock(BruteForceProtector.class);
         UserModel user = mock(UserModel.class);
 
@@ -181,37 +287,13 @@ class ContextHelperTest {
     }
 
     @Test
-    void shouldReturnFalseForLockWhenProtectionDisabled() {
+    void shouldReturnFalseForLockWhenProtectionDisabled()
+    {
         when(realm.isBruteForceProtected()).thenReturn(false);
 
         boolean locked = ContextHelper.getInstance(flowContext).isUserLocked(mock(UserModel.class));
 
         assertThat(locked).isFalse();
         verify(session, never()).getProvider(BruteForceProtector.class);
-    }
-
-    @Test
-    void shouldReturnFalseWhenNoMatchingClientForActiveSessionCheck() {
-        UserModel user = mock(UserModel.class);
-        when(realm.getClientByClientId("missing-client")).thenReturn(null);
-
-        boolean hasSession = ContextHelper.getInstance(flowContext).hasActiveClientSession(user, "missing-client");
-
-        assertThat(hasSession).isFalse();
-    }
-
-    @Test
-    void shouldReturnFalseWhenUserHasNoSessionsForClient() {
-        UserModel user = mock(UserModel.class);
-        ClientModel client = mock(ClientModel.class);
-        UserSessionProvider userSessionProvider = mock(UserSessionProvider.class);
-
-        when(realm.getClientByClientId("my-client")).thenReturn(client);
-        when(session.sessions()).thenReturn(userSessionProvider);
-        when(userSessionProvider.getUserSessionsStream(realm, user)).thenReturn(Stream.empty());
-
-        boolean hasSession = ContextHelper.getInstance(flowContext).hasActiveClientSession(user, "my-client");
-
-        assertThat(hasSession).isFalse();
     }
 }

@@ -536,7 +536,8 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/demo/account/*"
+        "/realms/demo/account/*",
+        "*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -554,7 +555,9 @@
         "post.logout.redirect.uris": "+",
         "pkce.code.challenge.method": "S256"
       },
-      "authenticationFlowBindingOverrides": {},
+      "authenticationFlowBindingOverrides": {
+        "browser": "a5a533f6-7273-40d7-bd80-79436665df84"
+      },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
       "protocolMappers": [
@@ -724,9 +727,7 @@
         "token.response.type.bearer.lower-case": "false",
         "dpop.bound.access.tokens": "false"
       },
-      "authenticationFlowBindingOverrides": {
-        "browser": "a5a533f6-7273-40d7-bd80-79436665df84"
-      },
+      "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
@@ -2519,9 +2520,8 @@
       "config": {
         "expectedAzp": "mobile-app",
         "formParamName": "id_token",
-        "needsActiveClientSession": "true",
-        "expectedAudience": "account-console",
-        "userClaim": "preferred_username"
+        "offlineSessionsAllowed": "true",
+        "expectedAudience": "account-console"
       }
     }
   ],
@@ -2699,6 +2699,9 @@
           "value": "changeIt",
           "temporary": false
         }
+      ],
+      "realmRoles": [
+        "offline_access"
       ],
       "clientRoles": {
         "account": [
