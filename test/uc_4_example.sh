@@ -62,12 +62,12 @@ resp_tx="$(curl -X POST "$authUrl/realms/$realm/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "client_id=$srcClientId" \
     --data-urlencode "client_secret=$srcClientSecret" \
-    --data-urlencode "scope=account" \
+    --data-urlencode "scope=proxy" \
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
     --data-urlencode "subject_token=$access_token" \
     --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:access_token" \
     --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:id_token" \
-    --data-urlencode "audience=$targetClientId" )"
+    --data-urlencode "audience=$proxyClientId" )"
 
 # When requesting an ID token, Keycloak returns it in the `access_token` field.
 exchanged_id_token="$(jq -r '.access_token' <<<"$resp_tx")"

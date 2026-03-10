@@ -18,14 +18,14 @@ readonly proxyClientSecret=jmFKJOr8VhExFravCPR0uO1HrG2TJoiP
 readonly redirectUri=http://localhost:8081/example/
 
 #simulates mobile app login
-#scope=audience adds the "account-console" as audience to the ID-Token
+#scope=proxy adds the "proxy-client" as audience to the ID-Token
 resp="$(curl -X POST $authUrl/realms/$realm/protocol/openid-connect/token \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "client_id=$srcClientId" \
     --data-urlencode "grant_type=password" \
     --data-urlencode "username=$username" \
     --data-urlencode "password=$password" \
-    --data-urlencode "scope=openid email account")"
+    --data-urlencode "scope=openid email proxy")"
 
 id_token="$(jq -r '.id_token' <<<"$resp")"
 

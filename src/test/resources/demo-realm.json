@@ -805,6 +805,7 @@
         "email"
       ],
       "optionalClientScopes": [
+        "proxy",
         "address",
         "phone",
         "organization",
@@ -868,6 +869,7 @@
         "email"
       ],
       "optionalClientScopes": [
+        "proxy",
         "address",
         "phone",
         "organization",
@@ -1120,6 +1122,35 @@
             "access.token.claim": "true",
             "claim.name": "organization",
             "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "id": "811fabba-5210-4a88-b707-89a32cf4fbae",
+      "name": "proxy",
+      "description": "",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false",
+        "gui.order": "",
+        "consent.screen.text": "",
+        "include.in.openid.provider.metadata": "false"
+      },
+      "protocolMappers": [
+        {
+          "id": "88452cc8-d079-49a9-8714-58f7777bdc30",
+          "name": "proxy",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "proxy-client",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "false"
           }
         }
       ]
@@ -1863,14 +1894,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
+            "saml-user-property-mapper",
+            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-address-mapper",
             "oidc-usermodel-attribute-mapper",
             "saml-user-attribute-mapper",
-            "oidc-usermodel-property-mapper",
-            "oidc-full-name-mapper",
             "saml-role-list-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
-            "saml-user-property-mapper",
-            "oidc-address-mapper"
+            "oidc-usermodel-property-mapper",
+            "oidc-full-name-mapper"
           ]
         }
       },
@@ -1882,14 +1913,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "saml-user-attribute-mapper",
             "saml-user-property-mapper",
-            "oidc-usermodel-attribute-mapper",
-            "oidc-full-name-mapper",
-            "oidc-usermodel-property-mapper",
-            "saml-role-list-mapper",
+            "oidc-address-mapper",
             "oidc-sha256-pairwise-sub-mapper",
-            "oidc-address-mapper"
+            "oidc-full-name-mapper",
+            "saml-role-list-mapper",
+            "oidc-usermodel-attribute-mapper",
+            "oidc-usermodel-property-mapper",
+            "saml-user-attribute-mapper"
           ]
         }
       },
@@ -2733,7 +2764,7 @@
         "expectedAzp": "mobile-app",
         "formParamName": "id_token",
         "offlineSessionsAllowed": "true",
-        "expectedAudience": "account-console"
+        "expectedAudience": "proxy-client"
       }
     },
     {
@@ -2743,7 +2774,7 @@
         "expectedAzp": "mobile-app-conf",
         "formParamName": "id_token",
         "offlineSessionsAllowed": "true",
-        "expectedAudience": "account-console"
+        "expectedAudience": "proxy-client"
       }
     },
     {
