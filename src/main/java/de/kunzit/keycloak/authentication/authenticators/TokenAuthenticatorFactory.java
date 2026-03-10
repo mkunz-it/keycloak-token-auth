@@ -8,8 +8,6 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ServerInfoAwareProviderFactory;
-import org.keycloak.representations.IDToken;
-import org.keycloak.representations.JsonWebToken;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +22,6 @@ public class TokenAuthenticatorFactory
 
     public static final String PROPERTY_AUDIENCE                 = "expectedAudience";
     public static final String PROPERTY_AZP                      = "expectedAzp";
-    public static final String PROPERTY_USER_CLAIM               = "userClaim";
     public static final String PROPERTY_OFFLINE_SESSIONS_ALLOWED = "offlineSessionsAllowed";
 
     public static final String PROVIDER_ID = "token-authenticator";

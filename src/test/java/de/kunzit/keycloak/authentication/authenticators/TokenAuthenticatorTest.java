@@ -91,17 +91,15 @@ class TokenAuthenticatorTest {
     void shouldValidateUserRulesViaPrivateMethod()
         throws Exception
     {
-        Method method = TokenAuthenticator.class.getDeclaredMethod("isValidUser", ContextHelper.class, UserModel.class, IDToken.class);
+        Method method = TokenAuthenticator.class.getDeclaredMethod("isValidUser", ContextHelper.class, UserModel.class);
         method.setAccessible(true);
 
         ContextHelper helper = mock(ContextHelper.class);
         UserModel user = mock(UserModel.class);
-        IDToken token = mock(IDToken.class);
-        when(token.getIssuedFor()).thenReturn("client-a");
         when(user.isEnabled()).thenReturn(true);
         when(helper.isUserLocked(user)).thenReturn(false);
 
-        boolean result = (boolean)method.invoke(authenticator, helper, user, token);
+        boolean result = (boolean)method.invoke(authenticator, helper, user);
 
         assertThat(result).isTrue();
     }

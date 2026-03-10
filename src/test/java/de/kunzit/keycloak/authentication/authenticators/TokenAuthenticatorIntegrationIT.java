@@ -52,7 +52,7 @@ class TokenAuthenticatorIntegrationIT {
     @BeforeAll
     static void setUp()
     {
-        LOGGER.info("Running test with Keycloak image: " + FullImageName.get());
+        LOGGER.info("Running test with Keycloak image: {}", FullImageName.get());
     }
 
     @Test

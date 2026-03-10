@@ -12,54 +12,50 @@ import static java.lang.module.ModuleDescriptor.Version;
 class FullImageName {
 
     enum Distribution {
-        quarkus
+        QUARKUS
     }
 
     private static final Distribution KEYCLOAK_DIST = Distribution.valueOf(
-        System.getProperty("keycloak.dist", Distribution.quarkus.name()));
+        System.getProperty("keycloak.dist", Distribution.QUARKUS.name()));
 
-    private static final String LATEST_VERSION = "latest";
-    private static final String NIGHTLY_VERSION = "nightly";
+    private static final String LATEST_VERSION   = "latest";
+    private static final String NIGHTLY_VERSION  = "nightly";
     private static final String KEYCLOAK_VERSION = System.getProperty("keycloak.version", LATEST_VERSION);
 
     private static final boolean USE_JAR = Boolean.parseBoolean(System.getProperty("useJar", "false"));
 
-    static String get() {
+    static String get()
+    {
         String imageName = "keycloak";
-
-        if (!isNightlyVersion()) {
-            if (!isLatestVersion()) {
-                if (getParsedVersion().compareTo(Version.parse("17")) < 0) {
-                    if (Distribution.quarkus.equals(KEYCLOAK_DIST)) {
-                        imageName = "keycloak-x";
-                    }
-                }
-            }
+        if (!isNightlyVersion() && !isLatestVersion() &&
+            (getParsedVersion().compareTo(Version.parse("17")) < 0) &&
+            Distribution.QUARKUS.equals(KEYCLOAK_DIST)) {
+            imageName = "keycloak-x";
         }
 
         return "quay.io/keycloak/" + imageName + ":" + KEYCLOAK_VERSION;
     }
 
-    static Boolean isNightlyVersion() {
+    static Boolean isNightlyVersion()
+    {
         return NIGHTLY_VERSION.equalsIgnoreCase(KEYCLOAK_VERSION);
     }
 
-    static Boolean isLatestVersion() {
+    static Boolean isLatestVersion()
+    {
         return LATEST_VERSION.equalsIgnoreCase(KEYCLOAK_VERSION);
     }
 
-    static Version getParsedVersion() {
+    static Version getParsedVersion()
+    {
         if (isLatestVersion()) {
             return null;
         }
         return Version.parse(KEYCLOAK_VERSION);
     }
 
-    static Distribution getDistribution() {
-        return KEYCLOAK_DIST;
-    }
-
-    static KeycloakContainer createContainer() {
+    static KeycloakContainer createContainer()
+    {
         String fullImage = FullImageName.get();
         ImagePullPolicy pullPolicy = PullPolicy.defaultPolicy();
         if (isLatestVersion() || isNightlyVersion()) {
@@ -69,7 +65,8 @@ class FullImageName {
             .withImagePullPolicy(pullPolicy);
         if (USE_JAR) {
             keycloakContainer = keycloakContainer.withProviderLibsFrom(List.of(new File("target/keycloak-id-token-auth.jar")));
-        } else {
+        }
+        else {
             keycloakContainer = keycloakContainer.withProviderClassesFrom("target/classes");
         }
         return keycloakContainer;

@@ -30,7 +30,7 @@ public class TokenAuthenticator
             try {
                 IDToken token = validateToken(context, rawIdToken, helper);
                 UserModel user = helper.getUserBySessionID(token);
-                if (isValidUser(helper, user, token)) {
+                if (isValidUser(helper, user)) {
                     helper.addUserToContext(user);
                     context.success();
                 }
@@ -75,24 +75,9 @@ public class TokenAuthenticator
         return verifier.getToken();
     }
 
-    private boolean isValidUser(ContextHelper helper, UserModel user, IDToken token)
+    private boolean isValidUser(ContextHelper helper, UserModel user)
     {
-        if (user == null) {
-            return false;
-        }
-
-        // is user disabled
-        if (!user.isEnabled()) {
-            LOGGER.debug("User {} is disabled", user.getUsername());
-            return false;
-        }
-
-        // Check brute force detection
-        if (helper.isUserLocked(user)) {
-            return false;
-        }
-
-        return true;
+        return user != null && user.isEnabled() && !helper.isUserLocked(user);
     }
 
     @Override public void action(AuthenticationFlowContext authenticationFlowContext)

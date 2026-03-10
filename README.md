@@ -89,7 +89,7 @@ If you are using RedHat SSO instead of Keycloak open source, mount or copy the j
 
 You may want to check [docker-compose.yml](docker-compose.yml) as an example.
 
-This project also contains an executable shell script [login-via-token.sh](test/login-via-token.sh) that works together with docker-compose.yml.
+This project also includes a list of executable shell scripts that work with docker-compose.yml.
 
 ### Maven/Gradle
 
@@ -131,17 +131,17 @@ There are two ways to add the target client as an `audience` into the ID token s
 - Public clients should always have PKCE enabled to prevent **authorization code interception**
 - If possible, all checks in the authenticator should be activated to ensure maximum security
 - Real clients should **never** share `Valid redirect URIs` with each other
-- If the target client is a confidential client, then a "proxy client" should always be used for configuring the `Valid redirect URIs` and the PAR/Auth call (see [Use Case: Confidential target client](docu/uc_confidential_target_client.md))
+- If the target client is a confidential client, then a "proxy client" should always be used for configuring the `Valid redirect URIs` and the PAR/Auth call
 
 ## Common Use Cases
 
 To make your life easier, I have described four possible use cases and their procedures
 
-| Use Case                                              | confidential target client | Audience Mapper | Token Exchange | Docu                                                                                                                  | Example Shell-Script                    |
-|-------------------------------------------------------|----------------------------|-----------------|----------------|-----------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
-| UC_1 - Public target client                           | false                      | true            | false          | [uc_1_public_target_client.md](docu/uc_1_public_target_client.md)                                                     | [uc_1_example.sh](test/uc_1_example.sh) |
-| UC_2 - Public target client with Token Exchange       | false                      | false           | true           | [uc_2_public_target_client_token_exchange.md](docu/uc_2_public_target_client_token_exchange.md)                       | [uc_2_example.sh](test/uc_2_example.sh) |
-| UC_3 - Confidential target client                     | true                       | true            | false          | [uc_3_confidential_target_client.md](docu/uc_3_confidential_target_client.md)                                         | [uc_3_example.sh](test/uc_3_example.sh) |
-| UC_4 - Confidential target client with Token Exchange | true                       | false           | true           | [uc_4_confidential_target_client_with_token_exchange.md](docu/uc_4_confidential_target_client_with_token_exchange.md) | [uc_4_example.sh](test/uc_4_example.sh) |
+| Use Case                                              | confidential target client | Audience Mapper | Token Exchange | Docu                                                                                                                   | Example Shell-Script                    |
+|-------------------------------------------------------|----------------------------|-----------------|----------------|------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
+| UC_1 - Public target client                           | false                      | true            | false          | [uc_1_public_target_client.md](docu/uc_1_public_target_client.md)                                                      | [uc_1_example.sh](test/uc_1_example.sh) |
+| UC_2 - Public target client with Token Exchange       | false                      | false           | true           | [uc_2_public_target_client_token_exchange.md](docu/uc_2_public_target_client_token_exchange.md)                        | [uc_2_example.sh](test/uc_2_example.sh) |
+| UC_3 - Confidential target client                     | true                       | true            | false          | [uc_3_confidential_target_client.md](docu/uc_3_confidential_target_client.md)                                          | [uc_3_example.sh](test/uc_3_example.sh) |
+| UC_4 - Confidential target client with Token Exchange | true                       | false           | true           | [uc_4_confidential_target_client_with_token_exchange.md](docu/uc_4_confidential_target_client_with_token_exchange.md)  | [uc_4_example.sh](test/uc_4_example.sh) |
 
 All use cases can be run locally with the corresponding shell script and the provided [docker-compose.yml](docker-compose.yml) file.
