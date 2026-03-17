@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ContextHelper {
@@ -33,6 +34,12 @@ public class ContextHelper {
     public static ContextHelper getInstance(AuthenticationFlowContext context)
     {
         return new ContextHelper(context);
+    }
+
+    public boolean isAccessTokenAllowed()
+    {
+        return Boolean.parseBoolean(
+            context.getAuthenticatorConfig().getConfig().getOrDefault(TokenAuthenticatorFactory.PROPERTY_ACCESS_TOKEN_ALLOWED, "false"));
     }
 
     public String getExpectedAudience()
@@ -56,7 +63,7 @@ public class ContextHelper {
         return context.getAuthenticatorConfig().getConfig().get(TokenAuthenticatorFactory.FORM_PARAM_NAME);
     }
 
-    private boolean isOfflineSessionsAllowed()
+    public boolean isOfflineSessionsAllowed()
     {
         return Boolean.parseBoolean(
             context.getAuthenticatorConfig().getConfig().getOrDefault(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "false"));
@@ -76,7 +83,11 @@ public class ContextHelper {
     {
         List<TokenVerifier.Predicate<? super IDToken>> checks = new ArrayList<>();
         checks.add(TokenVerifier.IS_ACTIVE);
-        checks.add(new TokenVerifier.TokenTypeCheck(List.of(TokenUtil.TOKEN_TYPE_ID)));
+        List<String> tokenTypes = new ArrayList<>(Arrays.asList(TokenUtil.TOKEN_TYPE_ID));
+        if(isAccessTokenAllowed()) {
+            tokenTypes.add(TokenUtil.TOKEN_TYPE_BEARER);
+        }
+        checks.add(new TokenVerifier.TokenTypeCheck(tokenTypes));
 
         String expectedAudience = getExpectedAudience();
         if (expectedAudience != null && !expectedAudience.isBlank()) {

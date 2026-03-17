@@ -1,6 +1,6 @@
-# Login via ID Token
+# Login via JWT Token
 
-This is a simple Keycloak aut henticator that enables users to log in using ID tokens.
+This is a simple Keycloak authenticator that enables users to log in using tokens.
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mkunz-it/keycloak-id-token-auth?sort=semver)
 ![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.5.4-blue)
@@ -13,26 +13,27 @@ This is a simple Keycloak aut henticator that enables users to log in using ID t
 
 ## What is it good for?
 
-In my customer projects, I often encountered the challenge that single sign-on did not work due to a missing session/cookie in the browser.
+In my customer projects, I often encountered the challenge that single sign-on did not work due to a missing session/cookie in the browser for mobile apps.
 This situation can arise if
 - the application uses the "Resource Owner Password Credentials Grant" flow **or**
 - the mobile browser does not permanently store the cookie for the mobile app
 
 ## How does it work?
 
-The authenticator expects an ID token in the client notes, which can be transmitted via a pushed authorization request (PAR)
+The authenticator expects an ID- or Access token in the client notes, which can be transmitted via a pushed authorization request (PAR)
 in an additional request. If such a token is available, it is validated and,
-if validation is successful, the user from the ID token is set in the authentication context.
+if validation is successful, the user from the token is set in the authentication context.
 
 Here is an example of one of the use cases (public target client):
 
 ```mermaid
 sequenceDiagram
-    actor user as User
-    participant mobile as Mobile Application
-    participant browser as Mobile Browser
-    participant webapp as Web Application
-    participant keycloak as Keycloak
+    actor user as End User
+    participant mobile as Mobile Application <br> (Source Client)
+    participant backend as Mobile Backend
+    participant browser as Browser  <br> (User Agent)
+    participant webapp as Web Application <br> (Target Client)
+    participant keycloak as Keycloak <br> (OpenID Provider)
     
     %% User logs in to the mobile app
     note over user,keycloak: Resource Owner Password Flow
@@ -40,30 +41,37 @@ sequenceDiagram
     mobile -->> user: login screen
     user ->> mobile: credentials
     mobile ->> keycloak: /token + grant_type=password
+    activate keycloak
     keycloak ->> keycloak: validate credentials
     keycloak -->> mobile: 🟢 ID-/ 🔵 Access-Token
+    deactivate keycloak
     mobile -->> user: logged in
-    user ->> mobile: request web app
+    user ->> mobile: request Web App
+    mobile ->> backend: 🟢 🔵 request Web App
     
     %% The user initiates the login to the web application.
-    note over mobile,keycloak: Start Session via ID-Token
-    mobile ->> keycloak: /ext/par/request + form-param 🟢 ID-Token
-    keycloak -->> mobile: request_uri
-    mobile ->> browser: /auth + request_uri
+    note over backend,keycloak: Start Session via ID-Token
+    backend ->> keycloak: /ext/par/request + form-param 🟢 ID-Token & client_id=proxy-client
+    activate keycloak
+    keycloak -->> backend: request_uri
+    backend ->> browser: /auth + request_uri
     browser ->> keycloak: /auth + request_uri
-    keycloak ->> keycloak: extract & verify 🟢 ID Token
-    keycloak ->> keycloak: create session
+    keycloak ->> keycloak: verify 🟢 ID Token
+    keycloak ->> keycloak: create session #127850;
     keycloak -->> browser: redirect
+    deactivate keycloak
     browser ->> webapp: HTTP-GET
     
     %% SSO login via browser cookie
     note over browser,keycloak: Authorization Code Flow
     webapp ->> keycloak: /auth
-    keycloak ->> keycloak: auth via Cookie
+    activate keycloak
+    keycloak ->> keycloak: auth via #127850;
     keycloak -->> browser: /callback + code
     browser ->> webapp: /callback + code
     webapp ->> keycloak: /token + code
-    keycloak -->> webapp: 🟡 ID-Token
+    keycloak -->> webapp: 🟡 ID-/ 🟠 Access-Token
+    deactivate keycloak
     webapp -->> browser: content
     browser -->> user: content
 ```
@@ -89,7 +97,8 @@ If you are using RedHat SSO instead of Keycloak open source, mount or copy the j
 
 You may want to check [docker-compose.yml](docker-compose.yml) as an example.
 
-This project also includes a list of executable shell scripts that work with docker-compose.yml.
+This project also includes a executable shell script [login_example.sh](test/login_example.sh) that works together with docker-compose.yml.
+To get an idea of what the script does, you can take a look at the following: [Overview.md](test/Overview.md)
 
 ### Maven/Gradle
 
@@ -97,51 +106,92 @@ Packages are being released to GitHub Packages. You find the coordinates [here](
 
 It may happen that I remove older packages without prior notice, because the storage is limited on the free tier.
 
-## How to configure?
-
-The following section shows the configuration of the authenticator in a simplified browser flow.
+## How to configure in Keycloak?
 
 ### Browser flow
 
 This authenticator can be used as an alternative to the authenticator cookie, Kerberos, etc.
+We need to create a custom browser flow, which will be later assigned to our `proxy-client`.
 
-![01_authenticator.png](docu/images/01_authenticator.png)
+![browser_flow_authenticator.png](docu/images/browser-flow/browser_flow_authenticator.png)
 
 The configuration of this authenticator is as follows
 
-![authenticator_config_mapping.png](docu/images/authenticator_config_mapping.png)
+![authenticator_config_mapping.png](docu/images/browser-flow/authenticator_config_mapping.png)
 
-| Field                    | Description                                                                                                                                        | Example              |
-|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|
-| (1) Form parameter       | Specifies which form parameter contains the ID Token                                                                                               | `id_token`           |
-| (2) Audience             | Specifies which target audience (client_id) must be included in the ID token                                                                       | `account-console`    |
-| (3) Issued For           | Specifies which client_id must be set as "issued for" in the ID token                                                                              | `mobile-app `        |
-| (4) User Claim           | Specifies which claim from the ID Token should be used to identify the user in Keycloak<br/> Possible values: `sub`, `email`, `preferred_username` | `preferred_username` |
-| (5) Needs active session | If this option is set to `On`, there must be an existing and active session for the client specified in the `Issued For` field                     | `On`                 |
+| Field                        | Description                                                                                                                  | Default    |
+|------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------|
+| (1) Form parameter           | Specifies which form parameter contains the ID Token                                                                         | `id_token` |
+| (2) Audience                 | Specifies which target audience (client_id) must be included in the ID token                                                 | -          |
+| (3) Issued For               | Specifies which client_id must be set as "issued for" in the ID token (sourceClient)                                         | -          |
+| (4) Offline sessions allowed | Defines whether offline sessions are also permitted for searching for the user session (On = permitted, Off = not permitted) | `On`       |
+| (5) Access tokens allowed    | Specifies whether access tokens are also permitted for login (support of `"typ": "Bearer"`).                                 | `Off`      |
 
-### Audience
+### Proxy Client
 
-There are two ways to add the target client as an `audience` into the ID token so that it can be checked later by the authenticator.
+To avoid having to maintain the valid redirect URIs on the `source client`, we use a confidential OIDC `proxy-client` for the Pushed Authorization Request (PAR) call.
 
-1. You use a token mapper on the start client, which writes the `audience` of the target client to the ID token.
-2. You use the standard token exchange, which exchanges the ID token of the start client for that of the target client (https://www.keycloak.org/securing-apps/token-exchange#_standard-token-exchange).
+#### Step 1: Create a new confidential OIDC client
+
+![01_proxy_client.png](docu/images/proxy-client/01_proxy_client.png)
+
+#### Step 2: Configure all Valid redirect URIs
+
+Configure all permitted redirect URIs for the `target clients`. In our case, this is the Keycloak console.
+
+![02_proxy_client_valid_uris.png](docu/images/proxy-client/02_proxy_client_valid_uris.png)
+
+#### Step 3: Protect the client
+
+Set the client to **confidential** and enable PKCE (PKCE is optional but recommended).
+Only the ‘Standard Flow’ needs to be enabled to allow the ‘Authorisation Code Flow’
+
+![03_proxy_client_conf_pkce.png](docu/images/proxy-client/03_proxy_client_conf_pkce.png)
+
+#### Step 4: Reduce scopes
+
+This `proxy client` only requires the ‘openid’ scope, so we will restrict the scopes as follows.
+"Full scope allowed" option on the dedicated scope should also be disabled.
+
+![05_proxy_client_reduce_scope.png](docu/images/proxy-client/05_proxy_client_reduce_scope.png)
+
+#### Step 5: Reduce Session and force PAR
+
+PAR should be mandatory for the `proxy client`, and the session duration can be set to a very short time (e.g. 15 seconds).
+
+![04_proxy_client_force_par_session.png](docu/images/proxy-client/04_proxy_client_force_par_session.png)
+
+**Optional:** We can also enable the ‘Always use lightweight access tokens’ option, but in normal use cases we will never receive a token for this client.
+
+#### Step 6: Assign custom browser flow
+
+Finally, we need to map our customer browser flow to the `proxy client`.
+
+### Client Scope
+
+To ensure that the correct audience is set for the `proxy client` in the token, we create a dedicated client scope with name `proxy` for this use case.
+
+![01_scopes_overview.png](docu/images/client-scope/01_scopes_overview.png)
+
+Here is the detailed configuration
+
+![02_scopes_audience.png](docu/images/client-scope/02_scopes_audience.png)
+
+### Add Scope to the source client
+
+Once we have created the client scope `proxy`, it must be assigned to the `source client`. In our example, this is the client "**mobile-app**".
+Abhängig davon, we der Scope angefragt wird, kann dieser als "Optional" oder "Default" konfiguriert werden.
+In this configuration, the scope must always be requested by the client.
+
+![add-optional-scope.png](docu/images/source-client/add-optional-scope.png)
 
 ## Security considerations
 
-- Public clients should always have PKCE enabled to prevent **authorization code interception**
+- The `proxy-client`
+  - should always have PKCE enabled to prevent **authorization code interception**
+  - must be a **confidential** client
+  - be the **only place** to configure valid redirect URI's for target clients using ID Token login
+  - has a dedicated custom browser flow with the securely configured Token Authenticator
 - If possible, all checks in the authenticator should be activated to ensure maximum security
-- Real clients should **never** share `Valid redirect URIs` with each other
-- If the target client is a confidential client, then a "proxy client" should always be used for configuring the `Valid redirect URIs` and the PAR/Auth call
-
-## Common Use Cases
-
-To make your life easier, I have described four possible use cases and their procedures
-
-| Use Case                                              | confidential target client | Audience Mapper | Token Exchange | Docu                                                                                                                   | Example Shell-Script                    |
-|-------------------------------------------------------|----------------------------|-----------------|----------------|------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
-| UC_1 - Public target client                           | false                      | true            | false          | [uc_1_public_target_client.md](docu/uc_1_public_target_client.md)                                                      | [uc_1_example.sh](test/uc_1_example.sh) |
-| UC_2 - Public target client with Token Exchange       | false                      | false           | true           | [uc_2_public_target_client_token_exchange.md](docu/uc_2_public_target_client_token_exchange.md)                        | [uc_2_example.sh](test/uc_2_example.sh) |
-| UC_3 - Confidential target client                     | true                       | true            | false          | [uc_3_confidential_target_client.md](docu/uc_3_confidential_target_client.md)                                          | [uc_3_example.sh](test/uc_3_example.sh) |
-| UC_4 - Confidential target client with Token Exchange | true                       | false           | true           | [uc_4_confidential_target_client_with_token_exchange.md](docu/uc_4_confidential_target_client_with_token_exchange.md)  | [uc_4_example.sh](test/uc_4_example.sh) |
-
-All use cases can be run locally with the corresponding shell script and the provided [docker-compose.yml](docker-compose.yml) file.
+- Where possible, you should use the ID token rather than the access token, as the ID token is used for authentication
+- PAR should be run from a backend (e.g. BFF)

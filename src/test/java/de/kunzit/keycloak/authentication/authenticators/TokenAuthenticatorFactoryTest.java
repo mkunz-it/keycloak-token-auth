@@ -17,9 +17,9 @@ class TokenAuthenticatorFactoryTest {
     @Test
     void shouldExposeMetadata()
     {
-        assertThat(factory.getDisplayType()).isEqualTo("ID Token Authentication");
+        assertThat(factory.getDisplayType()).isEqualTo("Token Authentication");
         assertThat(factory.getReferenceCategory()).isEqualTo("token");
-        assertThat(factory.getHelpText()).isEqualTo("Identify users based on existing ID tokens");
+        assertThat(factory.getHelpText()).isEqualTo("Identify users based on ID or Access tokens");
         assertThat(factory.getId()).isEqualTo(TokenAuthenticatorFactory.PROVIDER_ID);
     }
 
@@ -42,13 +42,14 @@ class TokenAuthenticatorFactoryTest {
     {
         List<ProviderConfigProperty> props = factory.getConfigProperties();
 
-        assertThat(props).hasSize(4);
+        assertThat(props).hasSize(5);
         assertThat(props).extracting(ProviderConfigProperty::getName)
                          .containsExactly(
                              TokenAuthenticatorFactory.FORM_PARAM_NAME,
                              TokenAuthenticatorFactory.PROPERTY_AUDIENCE,
                              TokenAuthenticatorFactory.PROPERTY_AZP,
-                             TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED
+                             TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED,
+                             TokenAuthenticatorFactory.PROPERTY_ACCESS_TOKEN_ALLOWED
                          );
     }
 

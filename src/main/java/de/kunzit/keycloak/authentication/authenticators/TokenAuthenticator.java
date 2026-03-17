@@ -52,14 +52,14 @@ public class TokenAuthenticator
     {
         // 1) Parse (no checks yet)
         TokenVerifier<IDToken> verifier = TokenVerifier.create(rawIdToken, IDToken.class)
-                                                       .parse(); //  [oai_citation:2‡Keycloak](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/TokenVerifier.html)
+                                                       .parse();
         JWSHeader header = verifier.getHeader();
         if (header == null)
             throw new VerificationException("Missing JWS header");
 
         // 2) Build signature verifier based on token header (alg + kid)
-        String alg = header.getRawAlgorithm();     // alg from JOSE header
-        String kid = header.getKeyId();            // key id from JOSE header
+        String alg = header.getRawAlgorithm();
+        String kid = header.getKeyId();
 
         if (alg == null || kid == null) {
             throw new VerificationException("Missing alg/kid in header");

@@ -6,8 +6,8 @@
   <artifactId>keycloak-id-token-auth</artifactId>
   <version>26.1.1-SNAPSHOT</version>
 
-  <name>Keycloak: Authenticator - Login via ID-Token</name>
-  <description>A Keycloak authenticator to allow login via OpenID Connect - ID-Token</description>
+  <name>Keycloak: Authenticator - Login via Token</name>
+  <description>A Keycloak authenticator to allow login via OpenID Connect - ID-Token or OAuth 2.0 Access Token</description>
 
   <packaging>jar</packaging>
 

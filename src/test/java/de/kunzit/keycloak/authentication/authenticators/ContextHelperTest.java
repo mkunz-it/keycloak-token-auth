@@ -10,10 +10,12 @@ import org.keycloak.authentication.FlowStatus;
 import org.keycloak.common.VerificationException;
 import org.keycloak.models.*;
 import org.keycloak.protocol.oidc.endpoints.AuthorizationEndpoint;
+import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.IDToken;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.BruteForceProtector;
 import org.keycloak.sessions.AuthenticationSessionModel;
+import org.keycloak.util.TokenUtil;
 import org.mockito.MockedStatic;
 
 import java.net.URI;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.*;
@@ -57,6 +60,8 @@ class ContextHelperTest {
         config.put(TokenAuthenticatorFactory.FORM_PARAM_NAME, "id_token");
         config.put(TokenAuthenticatorFactory.PROPERTY_AUDIENCE, "my-audience");
         config.put(TokenAuthenticatorFactory.PROPERTY_AZP, "my-client");
+        config.put(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "true");
+        config.put(TokenAuthenticatorFactory.PROPERTY_ACCESS_TOKEN_ALLOWED, "false");
 
         when(authenticatorConfigModel.getConfig()).thenReturn(config);
         when(flowContext.getAuthenticatorConfig()).thenReturn(authenticatorConfigModel);
@@ -81,6 +86,8 @@ class ContextHelperTest {
         assertThat(helper.getIssuedFor()).isEqualTo("my-client");
         assertThat(helper.getFormParameter()).isEqualTo("id_token");
         assertThat(helper.getRawToken()).isEqualTo("raw-token");
+        assertThat(helper.isOfflineSessionsAllowed()).isTrue();
+        assertThat(helper.isAccessTokenAllowed()).isFalse();
     }
 
     @Test
@@ -295,5 +302,48 @@ class ContextHelperTest {
 
         assertThat(locked).isFalse();
         verify(session, never()).getProvider(BruteForceProtector.class);
+    }
+
+    @Test
+    void shouldAcceptAccessTokenWhenItIsAllowed()
+        throws VerificationException
+    {
+        config.put(TokenAuthenticatorFactory.PROPERTY_AUDIENCE, " ");
+        config.put(TokenAuthenticatorFactory.PROPERTY_AZP, "");
+        config.put(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "true");
+        config.put(TokenAuthenticatorFactory.PROPERTY_ACCESS_TOKEN_ALLOWED, "true");
+        when(keycloakContext.getAuthServerUrl()).thenReturn(URI.create("https://sso.example.test/auth"));
+        when(realm.getName()).thenReturn("my-realm");
+
+        AccessToken accessToken = new AccessToken();
+        accessToken.type(TokenUtil.TOKEN_TYPE_BEARER);
+
+        List<TokenVerifier.Predicate<? super IDToken>> checks = ContextHelper.getInstance(flowContext).getTokenVerifierChecks();
+        assertThat(checks).hasSize(3);
+        assertThat(checks.get(1)).isInstanceOf(TokenVerifier.TokenTypeCheck.class);
+        TokenVerifier.TokenTypeCheck tokenTypeCheck = (TokenVerifier.TokenTypeCheck)checks.get(1);
+        assertThat(tokenTypeCheck.test(accessToken)).isTrue();
+    }
+
+    @Test
+    void shouldDenyAccessTokenWhenItIsNotAllowed()
+    {
+        config.put(TokenAuthenticatorFactory.PROPERTY_AUDIENCE, " ");
+        config.put(TokenAuthenticatorFactory.PROPERTY_AZP, "");
+        config.put(TokenAuthenticatorFactory.PROPERTY_OFFLINE_SESSIONS_ALLOWED, "true");
+        config.put(TokenAuthenticatorFactory.PROPERTY_ACCESS_TOKEN_ALLOWED, "false");
+        when(keycloakContext.getAuthServerUrl()).thenReturn(URI.create("https://sso.example.test/auth"));
+        when(realm.getName()).thenReturn("my-realm");
+
+        AccessToken accessToken = new AccessToken();
+        accessToken.type(TokenUtil.TOKEN_TYPE_BEARER);
+
+        List<TokenVerifier.Predicate<? super IDToken>> checks = ContextHelper.getInstance(flowContext).getTokenVerifierChecks();
+        assertThat(checks).hasSize(3);
+        assertThat(checks.get(1)).isInstanceOf(TokenVerifier.TokenTypeCheck.class);
+        TokenVerifier.TokenTypeCheck tokenTypeCheck = (TokenVerifier.TokenTypeCheck)checks.get(1);
+        assertThatThrownBy(() -> tokenTypeCheck.test(accessToken))
+            .isInstanceOf(VerificationException.class)
+            .hasMessage("Token type is incorrect. Expected '[ID]' but was 'Bearer'");
     }
 }

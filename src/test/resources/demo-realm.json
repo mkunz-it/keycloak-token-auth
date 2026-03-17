@@ -1,7 +1,7 @@
 {
   "id": "8ae0d2c8-84c7-4a4e-941c-3d3e288eef65",
   "realm": "demo",
-  "notBefore": 1772628918,
+  "notBefore": 1773235657,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
   "refreshTokenMaxReuse": 0,
@@ -88,7 +88,6 @@
       }
     ],
     "client": {
-      "confidential-client": [],
       "realm-management": [
         {
           "id": "824966ae-470d-4694-8eac-403b516af7f5",
@@ -303,7 +302,6 @@
       ],
       "mobile-app": [],
       "security-admin-console": [],
-      "mobile-app-conf": [],
       "admin-cli": [],
       "account-console": [],
       "broker": [
@@ -557,9 +555,7 @@
         "post.logout.redirect.uris": "+",
         "pkce.code.challenge.method": "S256"
       },
-      "authenticationFlowBindingOverrides": {
-        "browser": "a5a533f6-7273-40d7-bd80-79436665df84"
-      },
+      "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
       "protocolMappers": [
@@ -676,70 +672,6 @@
       ]
     },
     {
-      "id": "fa22985f-7576-4f31-9841-86c4114a8682",
-      "clientId": "confidential-client",
-      "name": "OIDC Test Client",
-      "description": "This is a confidential OIDC test client.",
-      "rootUrl": "http://localhost:8081",
-      "adminUrl": "",
-      "baseUrl": "http://localhost:8081/example",
-      "surrogateAuthRequired": false,
-      "enabled": true,
-      "alwaysDisplayInConsole": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "TMVWi2iTlTe5bgCRZhY2nyBrtFf7Jc8k",
-      "redirectUris": [
-        "http://localhost:8081/example/redirect_uri"
-      ],
-      "webOrigins": [
-        "+"
-      ],
-      "notBefore": 0,
-      "bearerOnly": false,
-      "consentRequired": false,
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "publicClient": false,
-      "frontchannelLogout": true,
-      "protocol": "openid-connect",
-      "attributes": {
-        "logout.confirmation.enabled": "false",
-        "client.secret.creation.time": "1773056332",
-        "standard.token.exchange.enabled": "false",
-        "frontchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "http://localhost:8081/post-logout/",
-        "oauth2.device.authorization.grant.enabled": "false",
-        "backchannel.logout.revoke.offline.tokens": "false",
-        "realm_client": "false",
-        "oidc.ciba.grant.enabled": "false",
-        "backchannel.logout.session.required": "true",
-        "display.on.consent.screen": "false",
-        "pkce.code.challenge.method": "S256",
-        "dpop.bound.access.tokens": "false"
-      },
-      "authenticationFlowBindingOverrides": {},
-      "fullScopeAllowed": true,
-      "nodeReRegistrationTimeout": -1,
-      "defaultClientScopes": [
-        "web-origins",
-        "acr",
-        "profile",
-        "roles",
-        "basic",
-        "email"
-      ],
-      "optionalClientScopes": [
-        "address",
-        "phone",
-        "organization",
-        "offline_access",
-        "microprofile-jwt",
-        "account"
-      ]
-    },
-    {
       "id": "0efdcb46-e7f2-4989-9140-7a7351a8670a",
       "clientId": "mobile-app",
       "name": "Mobile APP",
@@ -794,70 +726,6 @@
         "dpop.bound.access.tokens": "false"
       },
       "authenticationFlowBindingOverrides": {},
-      "fullScopeAllowed": true,
-      "nodeReRegistrationTimeout": -1,
-      "defaultClientScopes": [
-        "web-origins",
-        "acr",
-        "profile",
-        "roles",
-        "basic",
-        "email"
-      ],
-      "optionalClientScopes": [
-        "proxy",
-        "address",
-        "phone",
-        "organization",
-        "offline_access",
-        "microprofile-jwt",
-        "account"
-      ]
-    },
-    {
-      "id": "ce8948d6-add9-41ea-924a-8beadc741e18",
-      "clientId": "mobile-app-conf",
-      "name": "Mobile APP confidential",
-      "description": "This client represents a mobile app which uses \"Direct access grants\"",
-      "rootUrl": "",
-      "adminUrl": "",
-      "baseUrl": "",
-      "surrogateAuthRequired": false,
-      "enabled": true,
-      "alwaysDisplayInConsole": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "FX32ScdAtnd3LoUewf6ujaMAoFuyNWMt",
-      "redirectUris": [
-        "/*"
-      ],
-      "webOrigins": [
-        "/*"
-      ],
-      "notBefore": 0,
-      "bearerOnly": false,
-      "consentRequired": false,
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": false,
-      "publicClient": false,
-      "frontchannelLogout": true,
-      "protocol": "openid-connect",
-      "attributes": {
-        "realm_client": "false",
-        "logout.confirmation.enabled": "false",
-        "oidc.ciba.grant.enabled": "false",
-        "client.secret.creation.time": "1772627114",
-        "backchannel.logout.session.required": "true",
-        "standard.token.exchange.enabled": "true",
-        "frontchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "+",
-        "oauth2.device.authorization.grant.enabled": "false",
-        "display.on.consent.screen": "false",
-        "backchannel.logout.revoke.offline.tokens": "false",
-        "dpop.bound.access.tokens": "false"
-      },
-      "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
@@ -874,14 +742,13 @@
         "phone",
         "organization",
         "offline_access",
-        "microprofile-jwt",
-        "account"
+        "microprofile-jwt"
       ]
     },
     {
       "id": "f9cbef21-b6b7-4940-a93e-eec5ae4562d7",
       "clientId": "proxy-client",
-      "name": "Proxy Client für confidential target clients",
+      "name": "Proxy Client for PAR",
       "description": "This client acts as a proxy client, which contains the valid redirect URL of the target client and through which the PAR request and /auth call are made.",
       "rootUrl": "",
       "adminUrl": "",
@@ -892,10 +759,10 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "jmFKJOr8VhExFravCPR0uO1HrG2TJoiP",
       "redirectUris": [
-        "http://localhost:8081/example/"
+        "http://localhost:8080/realms/demo/account/"
       ],
       "webOrigins": [
-        "+"
+        ""
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -908,33 +775,34 @@
       "frontchannelLogout": true,
       "protocol": "openid-connect",
       "attributes": {
+        "frontchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "use.refresh.tokens": "false",
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "client_credentials.use_refresh_token": "false",
+        "require.pushed.authorization.requests": "true",
+        "pkce.code.challenge.method": "S256",
+        "client.session.max.lifespan": "15",
+        "client.session.idle.timeout": "15",
+        "dpop.bound.access.tokens": "false",
         "logout.confirmation.enabled": "false",
         "id.token.as.detached.signature": "false",
         "client.secret.creation.time": "1773040678",
         "client.introspection.response.allow.jwt.claim.enabled": "false",
         "standard.token.exchange.enabled": "false",
-        "post.logout.redirect.uris": "http://localhost:8081/post-logout/",
-        "frontchannel.logout.session.required": "true",
-        "oauth2.device.authorization.grant.enabled": "false",
-        "backchannel.logout.revoke.offline.tokens": "false",
-        "use.refresh.tokens": "true",
-        "realm_client": "false",
-        "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "true",
-        "backchannel.logout.session.required": "true",
         "request.object.required": "not required",
-        "client_credentials.use_refresh_token": "false",
         "access.token.header.type.rfc9068": "false",
         "tls.client.certificate.bound.access.tokens": "false",
-        "require.pushed.authorization.requests": "true",
         "acr.loa.map": "{}",
         "display.on.consent.screen": "false",
-        "pkce.code.challenge.method": "S256",
-        "token.response.type.bearer.lower-case": "false",
-        "dpop.bound.access.tokens": "false"
+        "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "7858f93f-1d6f-40c7-b567-772b4666ce22"
+        "browser": "a5a533f6-7273-40d7-bd80-79436665df84"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -1149,8 +1017,9 @@
             "included.client.audience": "proxy-client",
             "id.token.claim": "true",
             "lightweight.claim": "false",
-            "access.token.claim": "true",
-            "introspection.token.claim": "false"
+            "introspection.token.claim": "false",
+            "access.token.claim": "false",
+            "userinfo.token.claim": "false"
           }
         }
       ]
@@ -1728,36 +1597,6 @@
       ]
     },
     {
-      "id": "58f29798-f3b1-4500-9cf1-b3475f4ec945",
-      "name": "account",
-      "description": "Add the \"account-console\" audience to the ID Token",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "false",
-        "display.on.consent.screen": "true",
-        "gui.order": "",
-        "consent.screen.text": "",
-        "include.in.openid.provider.metadata": "true"
-      },
-      "protocolMappers": [
-        {
-          "id": "b0103fcd-f9ff-4787-966f-b285ace6f4d6",
-          "name": "account-console",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-audience-mapper",
-          "consentRequired": false,
-          "config": {
-            "included.client.audience": "account-console",
-            "id.token.claim": "true",
-            "lightweight.claim": "false",
-            "introspection.token.claim": "false",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true"
-          }
-        }
-      ]
-    },
-    {
       "id": "5e316aa7-6aa9-4bb5-b564-a33c1a39f1bd",
       "name": "microprofile-jwt",
       "description": "Microprofile - JWT built-in scope",
@@ -1818,8 +1657,7 @@
     "address",
     "phone",
     "microprofile-jwt",
-    "organization",
-    "account"
+    "organization"
   ],
   "browserSecurityHeaders": {
     "contentSecurityPolicyReportOnly": "",
@@ -1894,14 +1732,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "saml-user-property-mapper",
             "oidc-sha256-pairwise-sub-mapper",
-            "oidc-address-mapper",
-            "oidc-usermodel-attribute-mapper",
             "saml-user-attribute-mapper",
-            "saml-role-list-mapper",
+            "oidc-usermodel-attribute-mapper",
             "oidc-usermodel-property-mapper",
-            "oidc-full-name-mapper"
+            "oidc-address-mapper",
+            "saml-role-list-mapper",
+            "oidc-full-name-mapper",
+            "saml-user-property-mapper"
           ]
         }
       },
@@ -1913,13 +1751,13 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "saml-user-property-mapper",
-            "oidc-address-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
             "oidc-full-name-mapper",
-            "saml-role-list-mapper",
             "oidc-usermodel-attribute-mapper",
             "oidc-usermodel-property-mapper",
+            "oidc-address-mapper",
+            "saml-user-property-mapper",
+            "oidc-sha256-pairwise-sub-mapper",
+            "saml-role-list-mapper",
             "saml-user-attribute-mapper"
           ]
         }
@@ -2398,82 +2236,11 @@
           "userSetupAllowed": false
         },
         {
-          "authenticatorConfig": "use-case-1",
+          "authenticatorConfig": "validate-id-token",
           "authenticator": "token-authenticator",
           "authenticatorFlow": false,
           "requirement": "ALTERNATIVE",
           "priority": 25,
-          "autheticatorFlow": false,
-          "userSetupAllowed": false
-        },
-        {
-          "authenticatorConfig": "use-case-2",
-          "authenticator": "token-authenticator",
-          "authenticatorFlow": false,
-          "requirement": "ALTERNATIVE",
-          "priority": 31,
-          "autheticatorFlow": false,
-          "userSetupAllowed": false
-        },
-        {
-          "authenticatorFlow": true,
-          "requirement": "ALTERNATIVE",
-          "priority": 32,
-          "autheticatorFlow": true,
-          "flowAlias": "browser - token login forms",
-          "userSetupAllowed": false
-        }
-      ]
-    },
-    {
-      "id": "7858f93f-1d6f-40c7-b567-772b4666ce22",
-      "alias": "browser - token login - proxy",
-      "description": "Browser based authentication",
-      "providerId": "basic-flow",
-      "topLevel": true,
-      "builtIn": false,
-      "authenticationExecutions": [
-        {
-          "authenticator": "auth-cookie",
-          "authenticatorFlow": false,
-          "requirement": "ALTERNATIVE",
-          "priority": 10,
-          "autheticatorFlow": false,
-          "userSetupAllowed": false
-        },
-        {
-          "authenticatorConfig": "browser - token login - proxy use-case-3",
-          "authenticator": "token-authenticator",
-          "authenticatorFlow": false,
-          "requirement": "ALTERNATIVE",
-          "priority": 25,
-          "autheticatorFlow": false,
-          "userSetupAllowed": false
-        },
-        {
-          "authenticatorConfig": "browser - token login - proxy use-case-4",
-          "authenticator": "token-authenticator",
-          "authenticatorFlow": false,
-          "requirement": "ALTERNATIVE",
-          "priority": 26,
-          "autheticatorFlow": false,
-          "userSetupAllowed": false
-        }
-      ]
-    },
-    {
-      "id": "9559bebf-e226-4c43-bcde-22896fa84cf7",
-      "alias": "browser - token login forms",
-      "description": "Username, password, otp and other auth forms.",
-      "providerId": "basic-flow",
-      "topLevel": false,
-      "builtIn": false,
-      "authenticationExecutions": [
-        {
-          "authenticator": "auth-username-password-form",
-          "authenticatorFlow": false,
-          "requirement": "REQUIRED",
-          "priority": 10,
           "autheticatorFlow": false,
           "userSetupAllowed": false
         }
@@ -2758,26 +2525,6 @@
   ],
   "authenticatorConfig": [
     {
-      "id": "966426ef-f654-4e83-9e2a-20f6133574cf",
-      "alias": "browser - token login - proxy use-case-3",
-      "config": {
-        "expectedAzp": "mobile-app",
-        "formParamName": "id_token",
-        "offlineSessionsAllowed": "true",
-        "expectedAudience": "proxy-client"
-      }
-    },
-    {
-      "id": "eb32d6b1-68bd-4cd9-91ba-e3846f424331",
-      "alias": "browser - token login - proxy use-case-4",
-      "config": {
-        "expectedAzp": "mobile-app-conf",
-        "formParamName": "id_token",
-        "offlineSessionsAllowed": "true",
-        "expectedAudience": "proxy-client"
-      }
-    },
-    {
       "id": "65d8c48c-abe0-4c46-983a-b09fb132c0d1",
       "alias": "browser-conditional-credential",
       "config": {
@@ -2806,23 +2553,14 @@
       }
     },
     {
-      "id": "10f0277a-45e6-4063-9e41-6120b757a081",
-      "alias": "use-case-1",
+      "id": "6a5dcdd4-7fe9-4bb1-a5b3-abe902ef5d35",
+      "alias": "validate-id-token",
       "config": {
         "expectedAzp": "mobile-app",
         "formParamName": "id_token",
         "offlineSessionsAllowed": "true",
-        "expectedAudience": "account-console"
-      }
-    },
-    {
-      "id": "e577965a-b94c-4835-a3d6-f3f5c2852e4f",
-      "alias": "use-case-2",
-      "config": {
-        "expectedAzp": "mobile-app-conf",
-        "formParamName": "id_token",
-        "offlineSessionsAllowed": "true",
-        "expectedAudience": "account-console"
+        "expectedAudience": "proxy-client",
+        "accessTokenAllowed": "false"
       }
     }
   ],

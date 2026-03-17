@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+#Keycloak properties
 readonly authUrl="http://localhost:8080"
 readonly realm="demo"
 
-#client which simulates the mobile application
+#Source client, which simulates the mobile application
 readonly srcClientId=mobile-app
 readonly username=john.doe@example.com
 readonly password=changeIt
 
-#proxy client
+#Proxy client
 readonly proxyClientId=proxy-client
 readonly proxyClientSecret=jmFKJOr8VhExFravCPR0uO1HrG2TJoiP
-
-#other client to redirect after session is created in keyclaok
-#this uri must be set as valid redirect uri on the proxy-client client
-readonly redirectUri=http://localhost:8081/example/
+#Redirect URI to which the proxy client must redirect after logging in via the ID token
+readonly redirectUri=$authUrl/realms/$realm/account/
 
 #simulates mobile app login
 #scope=proxy adds the "proxy-client" as audience to the ID-Token
@@ -28,14 +27,21 @@ resp="$(curl -X POST $authUrl/realms/$realm/protocol/openid-connect/token \
     --data-urlencode "scope=openid email proxy")"
 
 id_token="$(jq -r '.id_token' <<<"$resp")"
+#access_token="$(jq -r '.access_token' <<<"$resp")"
 
 # optional sanity check
 [[ "$id_token" != "null" && -n "$id_token" ]] || { echo "No id_token in response: $resp" >&2; exit 1; }
+#[[ "$access_token" != "null" && -n "$access_token" ]] || { echo "No access_token in response: $resp" >&2; exit 1; }
 
 echo
 echo "id_token:"
 echo $id_token
 echo
+
+#echo
+#echo "access_token:"
+#echo $access_token
+#echo
 
 # creates a example code challenge
 code_verifier="$(
@@ -52,8 +58,8 @@ code_challenge="$(
 )"
 
 #use Pushed Authorization Request (PAR) to send ID token securely to Keycloak before start login
-#PKCE enabled and forced on the target client is a must have, if it is public one
-#code_challenge is not used by the mobile-app because it will never see the code, but it prevents "authorization code interception"
+#PKCE should be enabled and PAR should be forced on the proxy client
+#Hint: code_challenge is not used by the proxy-client because it will never see the code, but it prevents "authorization code interception"
 resp2="$(curl -X POST $authUrl/realms/$realm/protocol/openid-connect/ext/par/request \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "client_id=$proxyClientId" \

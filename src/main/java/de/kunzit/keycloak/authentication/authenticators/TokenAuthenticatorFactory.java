@@ -23,6 +23,7 @@ public class TokenAuthenticatorFactory
     public static final String PROPERTY_AUDIENCE                 = "expectedAudience";
     public static final String PROPERTY_AZP                      = "expectedAzp";
     public static final String PROPERTY_OFFLINE_SESSIONS_ALLOWED = "offlineSessionsAllowed";
+    public static final String PROPERTY_ACCESS_TOKEN_ALLOWED     = "accessTokenAllowed";
 
     public static final String PROVIDER_ID = "token-authenticator";
 
@@ -36,7 +37,7 @@ public class TokenAuthenticatorFactory
 
     @Override public String getDisplayType()
     {
-        return "ID Token Authentication";
+        return "Token Authentication";
     }
 
     @Override public String getReferenceCategory()
@@ -61,22 +62,25 @@ public class TokenAuthenticatorFactory
 
     @Override public String getHelpText()
     {
-        return "Identify users based on existing ID tokens";
+        return "Identify users based on ID or Access tokens";
     }
 
     @Override public List<ProviderConfigProperty> getConfigProperties()
     {
         return Arrays.asList(
-            new ProviderConfigProperty(FORM_PARAM_NAME, "Form parameter", "Name of the form parameter to search for an ID token",
+            new ProviderConfigProperty(FORM_PARAM_NAME, "Form parameter", "Name of the form parameter to search for an ID or Access token",
                                        ProviderConfigProperty.STRING_TYPE,
                                        FORM_PARAM_NAME_DEFAULT, false, true),
-            new ProviderConfigProperty(PROPERTY_AUDIENCE, "Audience", "Expected audience for the ID Token",
+            new ProviderConfigProperty(PROPERTY_AUDIENCE, "Audience", "Expected audience for the Token",
                                        ProviderConfigProperty.CLIENT_LIST_TYPE, null, false, true),
-            new ProviderConfigProperty(PROPERTY_AZP, "Issued For", "Expected 'azp' claim (issued for) for the ID Token",
+            new ProviderConfigProperty(PROPERTY_AZP, "Issued For", "Expected 'azp' claim (issued for) for the Token",
                                        ProviderConfigProperty.CLIENT_LIST_TYPE, null, false, true),
             new ProviderConfigProperty(PROPERTY_OFFLINE_SESSIONS_ALLOWED, "Offline sessions allowed",
                                        "Additionally searches for an offline session based on the Session-ID (sid).",
-                                       ProviderConfigProperty.BOOLEAN_TYPE, "true")
+                                       ProviderConfigProperty.BOOLEAN_TYPE, "true"),
+            new ProviderConfigProperty(PROPERTY_ACCESS_TOKEN_ALLOWED, "Access tokens allowed",
+                                       "Specifies whether access tokens are also permitted for login.",
+                                       ProviderConfigProperty.BOOLEAN_TYPE, "false")
         );
     }
 
