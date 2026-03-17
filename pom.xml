@@ -4,7 +4,7 @@
 
   <groupId>de.kunz-it.keycloak</groupId>
   <artifactId>keycloak-token-auth</artifactId>
-  <version>26.1.1-SNAPSHOT</version>
+  <version>26.5.0-SNAPSHOT</version>
 
   <name>Keycloak: Authenticator - Login via Token</name>
   <description>A Keycloak authenticator to allow login via OpenID Connect - ID-Token or OAuth 2.0 Access Token</description>
@@ -40,7 +40,7 @@
     <repository>
       <id>github</id>
       <name>GitHub mkunz-it Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/mkunz/token-authenticator</url>
+      <url>https://maven.pkg.github.com/mkunz-it/keycloak-token-auth</url>
     </repository>
   </distributionManagement>
 
