@@ -13,7 +13,8 @@ class FullImageName {
 
     private static final String LATEST_VERSION   = "latest";
     private static final String NIGHTLY_VERSION  = "nightly";
-    private static final String KEYCLOAK_VERSION = System.getProperty("keycloak.version", LATEST_VERSION);
+    private static final String KEYCLOAK_VERSION = System.getProperty("keycloak.image.version",
+                                                                      System.getProperty("keycloak.version", LATEST_VERSION));
 
     private static final boolean USE_JAR = Boolean.parseBoolean(System.getProperty("useJar", "false"));
 

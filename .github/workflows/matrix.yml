@@ -27,4 +27,4 @@ jobs:
       - name: Download extension
         run: curl -L -o target/keycloak-restrict-client-auth.jar https://github.com/mkunz-it/keycloak-id-token-auth/releases/download/v${{ matrix.extension_version }}/keycloak-id-token-auth.jar
       - name: Compatibility tests
-        run: mvn -B -U failsafe:integration-test failsafe:verify --file pom.xml -Dkeycloak.version=${{ matrix.keycloak_version }} -DuseJar=true
+        run: mvn -B -U failsafe:integration-test failsafe:verify --file pom.xml -Dkeycloak.image.version=${{ matrix.keycloak_version }} -DuseJar=true
