@@ -11,13 +11,6 @@ import static java.lang.module.ModuleDescriptor.Version;
 
 class FullImageName {
 
-    enum Distribution {
-        QUARKUS
-    }
-
-    private static final Distribution KEYCLOAK_DIST = Distribution.valueOf(
-        System.getProperty("keycloak.dist", Distribution.QUARKUS.name()));
-
     private static final String LATEST_VERSION   = "latest";
     private static final String NIGHTLY_VERSION  = "nightly";
     private static final String KEYCLOAK_VERSION = System.getProperty("keycloak.version", LATEST_VERSION);
@@ -27,12 +20,6 @@ class FullImageName {
     static String get()
     {
         String imageName = "keycloak";
-        if (!isNightlyVersion() && !isLatestVersion() &&
-            (getParsedVersion().compareTo(Version.parse("17")) < 0) &&
-            Distribution.QUARKUS.equals(KEYCLOAK_DIST)) {
-            imageName = "keycloak-x";
-        }
-
         return "quay.io/keycloak/" + imageName + ":" + KEYCLOAK_VERSION;
     }
 
@@ -44,14 +31,6 @@ class FullImageName {
     static Boolean isLatestVersion()
     {
         return LATEST_VERSION.equalsIgnoreCase(KEYCLOAK_VERSION);
-    }
-
-    static Version getParsedVersion()
-    {
-        if (isLatestVersion()) {
-            return null;
-        }
-        return Version.parse(KEYCLOAK_VERSION);
     }
 
     static KeycloakContainer createContainer()
