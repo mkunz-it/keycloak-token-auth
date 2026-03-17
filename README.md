@@ -167,6 +167,8 @@ PAR should be mandatory for the `proxy client`, and the session duration can be 
 
 Finally, we need to map our customer browser flow to the `proxy client`.
 
+![06_proxy_client_assign_flow.png](docu/images/proxy-client/06_proxy_client_assign_flow.png)
+
 ### Client Scope
 
 To ensure that the correct audience is set for the `proxy client` in the token, we create a dedicated client scope with name `proxy` for this use case.
