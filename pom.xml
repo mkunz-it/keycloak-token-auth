@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>de.kunz-it.keycloak</groupId>
-  <artifactId>keycloak-id-token-auth</artifactId>
+  <artifactId>keycloak-token-auth</artifactId>
   <version>26.1.1-SNAPSHOT</version>
 
   <name>Keycloak: Authenticator - Login via Token</name>
@@ -24,15 +24,15 @@
   </developers>
 
   <scm>
-    <connection>scm:git:ssh://git@github.com:mkunz-it/keycloak-id-token-auth.git</connection>
-    <developerConnection>scm:git:https://github.com/mkunz-it/keycloak-id-token-auth.git
+    <connection>scm:git:ssh://git@github.com:mkunz-it/keycloak-token-auth.git</connection>
+    <developerConnection>scm:git:https://github.com/mkunz-it/keycloak-token-auth.git
     </developerConnection>
-    <url>https://github.com/mkunz-it/keycloak-id-token-auth.git</url>
+    <url>https://github.com/mkunz-it/keycloak-token-auth.git</url>
     <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
-    <url>https://github.com/mkunz-it/keycloak-id-token-auth/issues</url>
+    <url>https://github.com/mkunz-it/keycloak-token-auth/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 

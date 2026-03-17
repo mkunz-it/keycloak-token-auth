@@ -2,13 +2,13 @@
 
 This is a simple Keycloak authenticator that enables users to log in using tokens.
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mkunz-it/keycloak-id-token-auth?sort=semver)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mkunz-it/keycloak-token-auth?sort=semver)
 ![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.5.4-blue)
-![GitHub Release Date](https://img.shields.io/github/release-date-pre/mkunz-it/keycloak-id-token-auth)
-![Github Last Commit](https://img.shields.io/github/last-commit/mkunz-it/keycloak-id-token-auth)
+![GitHub Release Date](https://img.shields.io/github/release-date-pre/mkunz-it/keycloak-token-auth)
+![Github Last Commit](https://img.shields.io/github/last-commit/mkunz-it/keycloak-token-auth)
 
-![CI build](https://github.com/mkunz-it/keycloak-id-token-auth/actions/workflows/buildAndTest.yml/badge.svg)
-![open issues](https://img.shields.io/github/issues/mkunz-it/keycloak-id-token-auth)
+![CI build](https://github.com/mkunz-it/keycloak-token-auth/actions/workflows/buildAndTest.yml/badge.svg)
+![open issues](https://img.shields.io/github/issues/mkunz-it/keycloak-token-auth)
 [![CodeScene Code Health](https://codescene.io/projects/25589/status-badges/code-health)](https://codescene.io/projects/25589)
 
 ## What is it good for?
@@ -78,7 +78,7 @@ sequenceDiagram
 
 ## How to install?
 
-Download a release (*.jar file) that works with your Keycloak version from the [list of releases](https://github.com/mkunz-it/keycloak-id-token-auth/releases).
+Download a release (*.jar file) that works with your Keycloak version from the [list of releases](https://github.com/mkunz-it/keycloak-token-auth/releases).
 Follow the below instructions depending on your distribution and runtime environment.
 
 ### Standalone (without container)
@@ -102,7 +102,7 @@ To get an idea of what the script does, you can take a look at the following: [O
 
 ### Maven/Gradle
 
-Packages are being released to GitHub Packages. You find the coordinates [here](https://github.com/mkunz-it/keycloak-id-token-auth/packages/779937/versions)!
+Packages are being released to GitHub Packages. You find the coordinates [here](https://github.com/mkunz-it/keycloak-token-auth/packages/779937/versions)!
 
 It may happen that I remove older packages without prior notice, because the storage is limited on the free tier.
 
