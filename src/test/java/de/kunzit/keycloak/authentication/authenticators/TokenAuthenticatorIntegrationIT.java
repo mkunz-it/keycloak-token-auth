@@ -104,7 +104,7 @@ class TokenAuthenticatorIntegrationIT {
     void shouldLoginToAccountConsoleWhenOfflineSessionIsAllowed()
         throws Exception
     {
-        String idToken = obtainIdToken("openid email account offline_access");
+        String idToken = obtainIdToken("openid email proxy offline_access");
         String requestUri = pushedAuthorizationRequest(idToken, accountConsoleUri().toString());
 
         try (Playwright playwright = Playwright.create()) {
