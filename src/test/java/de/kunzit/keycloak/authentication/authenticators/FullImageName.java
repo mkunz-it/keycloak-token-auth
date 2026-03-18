@@ -7,8 +7,6 @@ import org.testcontainers.images.PullPolicy;
 import java.io.File;
 import java.util.List;
 
-import static java.lang.module.ModuleDescriptor.Version;
-
 class FullImageName {
 
     private static final String LATEST_VERSION   = "latest";
@@ -44,7 +42,7 @@ class FullImageName {
         KeycloakContainer keycloakContainer = new KeycloakContainer(fullImage)
             .withImagePullPolicy(pullPolicy);
         if (USE_JAR) {
-            keycloakContainer = keycloakContainer.withProviderLibsFrom(List.of(new File("target/keycloak-id-token-auth.jar")));
+            keycloakContainer = keycloakContainer.withProviderLibsFrom(List.of(new File("target/keycloak-token-auth.jar")));
         }
         else {
             keycloakContainer = keycloakContainer.withProviderClassesFrom("target/classes");
