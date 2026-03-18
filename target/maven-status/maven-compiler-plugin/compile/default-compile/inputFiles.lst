@@ -1,0 +1,4 @@
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/main/java/de/kunzit/keycloak/authentication/authenticators/helper/Constants.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/main/java/de/kunzit/keycloak/authentication/authenticators/TokenAuthenticator.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/main/java/de/kunzit/keycloak/authentication/authenticators/helper/ContextHelper.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/main/java/de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorFactory.java
