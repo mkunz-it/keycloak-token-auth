@@ -4,7 +4,7 @@
 
   <groupId>de.kunz-it.keycloak</groupId>
   <artifactId>keycloak-token-auth</artifactId>
-  <version>26.5.0</version>
+  <version>26.5.1-SNAPSHOT</version>
 
   <name>Keycloak: Authenticator - Login via Token</name>
   <description>A Keycloak authenticator to allow login via OpenID Connect - ID-Token or OAuth 2.0 Access Token</description>
@@ -28,7 +28,7 @@
     <developerConnection>scm:git:https://github.com/mkunz-it/keycloak-token-auth.git
     </developerConnection>
     <url>https://github.com/mkunz-it/keycloak-token-auth.git</url>
-    <tag>v26.5.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
