@@ -3,13 +3,23 @@
 This is a simple Keycloak authenticator that enables users to log in using tokens.
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mkunz-it/keycloak-token-auth?sort=semver)
-![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.5.4-blue)
+![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.6.1-blue)
 ![GitHub Release Date](https://img.shields.io/github/release-date-pre/mkunz-it/keycloak-token-auth)
 ![Github Last Commit](https://img.shields.io/github/last-commit/mkunz-it/keycloak-token-auth)
+
 
 ![CI build](https://github.com/mkunz-it/keycloak-token-auth/actions/workflows/buildAndTest.yml/badge.svg)
 ![open issues](https://img.shields.io/github/issues/mkunz-it/keycloak-token-auth)
 [![CodeScene Code Health](https://codescene.io/projects/25589/status-badges/code-health)](https://codescene.io/projects/25589)
+
+![GitHub Last Commit](https://img.shields.io/github/last-commit/mkunz-it/keycloak-token-auth/main?cacheSeconds=300)
+
+## Before you use the extension
+
+⚠️**IMPORTANT NOTICE** ⚠️
+
+This authenticator creates a user session in the browser using an ID or access token.
+This bypasses one of Keycloak’s security mechanisms, so this extension should be configured with care.
 
 ## What is it good for?
 

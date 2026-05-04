@@ -153,4 +153,8 @@ public class ContextHelper {
         return false;
     }
 
+    public boolean isConfidentialClient(){
+        return !context.getAuthenticationSession().getClient().isPublicClient();
+    }
+
 }
