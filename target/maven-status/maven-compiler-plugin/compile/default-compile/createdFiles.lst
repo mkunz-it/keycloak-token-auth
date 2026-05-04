@@ -1,0 +1,4 @@
+de/kunzit/keycloak/authentication/authenticators/helper/Constants.class
+de/kunzit/keycloak/authentication/authenticators/TokenAuthenticator.class
+de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorFactory.class
+de/kunzit/keycloak/authentication/authenticators/helper/ContextHelper.class

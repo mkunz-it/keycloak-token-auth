@@ -1,0 +1,5 @@
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/test/java/de/kunzit/keycloak/authentication/authenticators/ContextHelperTest.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/test/java/de/kunzit/keycloak/authentication/authenticators/FullImageName.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/test/java/de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorFactoryTest.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/test/java/de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorIntegrationIT.java
+/home/runner/work/keycloak-token-auth/keycloak-token-auth/src/test/java/de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorTest.java

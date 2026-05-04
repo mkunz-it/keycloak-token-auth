@@ -1,0 +1,1 @@
+4766 [main] {WARN } de.kunzit.keycloak.authentication.authenticators.TokenAuthenticator - !!! TokenAuthenticator” is only permitted for confidential clients – execution skipped !!!
