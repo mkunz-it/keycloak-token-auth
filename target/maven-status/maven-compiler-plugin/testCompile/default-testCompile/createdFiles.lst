@@ -1,0 +1,5 @@
+de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorTest.class
+de/kunzit/keycloak/authentication/authenticators/FullImageName.class
+de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorFactoryTest.class
+de/kunzit/keycloak/authentication/authenticators/ContextHelperTest.class
+de/kunzit/keycloak/authentication/authenticators/TokenAuthenticatorIntegrationIT.class

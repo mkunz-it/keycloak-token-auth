@@ -4,7 +4,7 @@
 
   <groupId>de.kunz-it.keycloak</groupId>
   <artifactId>keycloak-token-auth</artifactId>
-  <version>26.6.0-SNAPSHOT</version>
+  <version>26.6.1-SNAPSHOT</version>
 
   <name>Keycloak: Authenticator - Login via Token</name>
   <description>A Keycloak authenticator to allow login via OpenID Connect - ID-Token or OAuth 2.0 Access Token</description>
