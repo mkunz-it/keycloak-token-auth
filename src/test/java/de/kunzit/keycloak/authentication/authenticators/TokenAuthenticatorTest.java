@@ -14,6 +14,7 @@ import org.keycloak.crypto.SignatureProvider;
 import org.keycloak.exceptions.TokenNotActiveException;
 import org.keycloak.exceptions.TokenSignatureInvalidException;
 import org.keycloak.jose.jws.JWSBuilder;
+import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -52,6 +53,33 @@ class TokenAuthenticatorTest {
         when(flowContext.getSession()).thenReturn(session);
         when(flowContext.getStatus()).thenReturn(FlowStatus.ATTEMPTED);
         when(authSession.getClientNote(anyString())).thenReturn(null);
+        ClientModel client = mock(ClientModel.class);
+        when(flowContext.getAuthenticationSession().getClient()).thenReturn(client);
+        when(client.isPublicClient()).thenReturn(false);
+
+        authenticator.authenticate(flowContext);
+
+        verify(flowContext).attempted();
+        verify(flowContext, never()).success();
+    }
+
+    @Test
+    void shouldAttemptWhenClientIsPublic()
+    {
+        AuthenticationFlowContext flowContext = mock(AuthenticationFlowContext.class);
+        var authenticatorConfig = mock(org.keycloak.models.AuthenticatorConfigModel.class);
+        var authSession = mock(org.keycloak.sessions.AuthenticationSessionModel.class);
+        var session = mock(KeycloakSession.class);
+
+        when(flowContext.getAuthenticatorConfig()).thenReturn(authenticatorConfig);
+        when(authenticatorConfig.getConfig()).thenReturn(java.util.Map.of(TokenAuthenticatorFactory.FORM_PARAM_NAME, "id_token"));
+        when(flowContext.getAuthenticationSession()).thenReturn(authSession);
+        when(flowContext.getSession()).thenReturn(session);
+        when(flowContext.getStatus()).thenReturn(FlowStatus.ATTEMPTED);
+        when(authSession.getClientNote(anyString())).thenReturn(null);
+        ClientModel client = mock(ClientModel.class);
+        when(flowContext.getAuthenticationSession().getClient()).thenReturn(client);
+        when(client.isPublicClient()).thenReturn(true);
 
         authenticator.authenticate(flowContext);
 
@@ -73,6 +101,9 @@ class TokenAuthenticatorTest {
         when(flowContext.getSession()).thenReturn(session);
         when(flowContext.getStatus()).thenReturn(FlowStatus.SUCCESS);
         when(authSession.getClientNote(anyString())).thenReturn("");
+        ClientModel client = mock(ClientModel.class);
+        when(flowContext.getAuthenticationSession().getClient()).thenReturn(client);
+        when(client.isPublicClient()).thenReturn(false);
 
         authenticator.authenticate(flowContext);
 

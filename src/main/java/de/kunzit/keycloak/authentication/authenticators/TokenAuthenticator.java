@@ -24,22 +24,26 @@ public class TokenAuthenticator
     @Override public void authenticate(AuthenticationFlowContext context)
     {
         ContextHelper helper = ContextHelper.getInstance(context);
-        String rawIdToken = helper.getRawToken();
+        if (helper.isConfidentialClient()) {
+            String rawIdToken = helper.getRawToken();
 
-        if (rawIdToken != null && !rawIdToken.isEmpty()) {
-            try {
-                IDToken token = validateToken(context, rawIdToken, helper);
-                UserModel user = helper.getUserBySessionID(token);
-                if (isValidUser(helper, user)) {
-                    helper.addUserToContext(user);
-                    context.success();
+            if (rawIdToken != null && !rawIdToken.isEmpty()) {
+                try {
+                    IDToken token = validateToken(context, rawIdToken, helper);
+                    UserModel user = helper.getUserBySessionID(token);
+                    if (isValidUser(helper, user)) {
+                        helper.addUserToContext(user);
+                        context.success();
+                    }
+                } catch (VerificationException e) {
+                    LOGGER.info("Invalid token was used for authentication - {}", e.getMessage());
                 }
-            } catch (VerificationException e) {
-                LOGGER.info("Invalid token was used for authentication - {}", e.getMessage());
             }
-        }
-        else {
-            LOGGER.debug("Could not find ID Token for form parameter {}", helper.getFormParameter());
+            else {
+                LOGGER.debug("Could not find ID Token for form parameter {}", helper.getFormParameter());
+            }
+        } else {
+            LOGGER.warn("!!! TokenAuthenticator” is only permitted for confidential clients – execution skipped !!!");
         }
 
         if (!helper.isSuccess()) {
